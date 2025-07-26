@@ -1,6 +1,32 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>andrzejressel/renovate-config"
+    "config:recommended",
+    "github>andrzejressel/renovate-config//rust/updateToolchain",
+    "helpers:pinGitHubActionDigestsToSemver"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "mkdocs-material",
+        "squidfunk/mkdocs-material"
+      ],
+      "groupName": "mkdocs-material"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update _VERSION variables in justfile",
+      "managerFilePatterns": [
+        "/(^|/|\\.)justfile/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+?)(?: depName=(?<depName>.+?))? packageName=(?<packageName>.+?)(?: versioning=(?<versioning>[a-z-]+?))?\\s.+?_VERSION := \"(?<currentValue>.+?)\"\\s"
+      ]
+    }
   ]
 }
