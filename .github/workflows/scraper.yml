@@ -26,19 +26,19 @@ jobs:
         cache-dependency-path: 'scraper/requirements.txt'
 
     - name: Install system dependencies (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'ubuntu-24.04'
       run: |
         sudo apt-get update
         sudo apt-get install -y ghostscript
 
     - name: Install system dependencies (macOS)
-      if: matrix.os == 'macos-latest'
+      if: matrix.os == 'macos-13'
       run: |
         brew install ghostscript
         sudo ln -sf /usr/lib/libgs.so $(brew --prefix)/lib/libgs.dylib
 
     - name: Install system dependencies (Windows)
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-2022'
       run: |
         choco install ghostscript
 
