@@ -1,0 +1,88 @@
+<div class="mat-app-background">
+  <mat-toolbar color="primary" class="mat-elevation-z4">
+    <span>{{ title }}</span>
+    <span class="toolbar-spacer"></span>
+    <!--    <button mat-icon-button aria-label="Menu">-->
+    <!--      <mat-icon>menu</mat-icon>-->
+    <!--    </button>-->
+  </mat-toolbar>
+
+  <div class="content-container">
+    <mat-card class="intro-card mat-elevation-z2">
+      <mat-card-header>
+        <mat-card-title class="mat-headline">Obligacje Skarbowe RP</mat-card-title>
+        <mat-card-subtitle class="mat-subheading">
+          Portal prezentujący aktualne dane o rentowności polskich obligacji skarbowych
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="mat-body">
+          Analizuj trendy i podejmuj świadome decyzje inwestycyjne! Poniższy wykres przedstawia
+          rentowność obligacji skarbowych o różnych terminach zapadalności.
+        </p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="bond-selector-card mat-elevation-z2">
+      <mat-card-content>
+        <div class="bond-selector-container">
+          <mat-form-field appearance="fill">
+            <mat-label>Wybierz rodzaj obligacji</mat-label>
+            <mat-select [(ngModel)]="selectedBondType" (selectionChange)="onBondTypeChange()">
+              <mat-option>
+                <ngx-mat-select-search [formControl]="bankFilterCtrl" placeholderLabel="Wyszukaj" noEntriesFoundLabel="Nie znaleziono"></ngx-mat-select-search>
+              </mat-option>
+              @for (bondType of (filteredBanks | async); track bondType) {
+                <mat-option [value]="bondType">Obligacje {{ bondType }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card mat-elevation-z3">
+      <mat-card-content>
+        <!-- Loading spinner -->
+        @if (isLoading) {
+          <div class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p class="loading-text">Ładowanie danych...</p>
+          </div>
+        }
+
+        @if (errorMessage && !isLoading) {
+          <!-- Error message -->
+          <div class="error-container">
+            <mat-icon color="warn">error</mat-icon>
+            <p class="error-text">{{ errorMessage }}</p>
+            <button mat-raised-button color="primary" (click)="loadBondData()">
+              Spróbuj ponownie
+            </button>
+          </div>
+        }
+
+        <!-- Chart -->
+        @if (!isLoading && !errorMessage) {
+          <plotly-plot
+            [data]="chartData"
+            [layout]="chartLayout"
+            [config]="chartConfig"
+          ></plotly-plot>
+        }
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <p>© 2024 Portal Obligacji Skarbowych</p>
+      <div class="footer-links">
+        <a href="#" mat-button color="accent">O nas</a>
+        <a href="#" mat-button color="accent">Kontakt</a>
+        <a href="#" mat-button color="accent">Polityka prywatności</a>
+      </div>
+    </div>
+  </footer>
+</div>
