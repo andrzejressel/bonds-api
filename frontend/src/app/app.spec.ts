@@ -1,38 +1,60 @@
 import {TestBed} from '@angular/core/testing';
 import {App} from './app';
-import {importProvidersFrom} from '@angular/core';
-import {PlotlyModule} from 'angular-plotly.js';
+import {BondDataService} from './services/bond-data.service';
+import {BondFilesService} from './services/bond-files.service';
+import {of} from 'rxjs';
+import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 // @ts-ignore
-import Plotly from 'plotly.js-dist'
+import Plotly from 'plotly.js-dist';
+import {PlotlyModule} from 'angular-plotly.js';
 
 describe('App', () => {
-    it('should test something', () => {
-        expect(true).toBeTruthy();
-    })
-});
+  let component: App;
+  let fixture: any;
+  let mockBondDataService: jasmine.SpyObj<BondDataService>;
+  let mockBondFilesService: jasmine.SpyObj<BondFilesService>;
 
-// describe('App', () => {
-//   beforeEach(async () => {
-//     await TestBed.configureTestingModule({
-//       imports: [
-//         App,
-//         importProvidersFrom(
-//           PlotlyModule.forRoot(Plotly)
-//         )
-//       ],
-//     }).compileComponents();
-//   });
-//
-//   it('should create the app', () => {
-//     const fixture = TestBed.createComponent(App);
-//     const app = fixture.componentInstance;
-//     expect(app).toBeTruthy();
-//   });
-//
-//   it('should render title', () => {
-//     const fixture = TestBed.createComponent(App);
-//     fixture.detectChanges();
-//     const compiled = fixture.nativeElement as HTMLElement;
-//     expect(compiled.querySelector('h1')?.textContent).toContain('Hello, ObligacjeStarboweWebsite');
-//   });
-// });
+  beforeEach(async () => {
+    // Create mock services
+    mockBondDataService = jasmine.createSpyObj('BondDataService', ['getBondData']);
+    mockBondFilesService = jasmine.createSpyObj('BondFilesService', ['getBondNames']);
+
+    // Setup mock return values
+    mockBondFilesService.getBondNames.and.returnValue(of(['Bond1', 'Bond2', 'Bond3']));
+
+    await TestBed.configureTestingModule({
+      imports: [
+        App,
+        NoopAnimationsModule,
+        PlotlyModule.forRoot(Plotly)
+      ],
+      providers: [
+        { provide: BondDataService, useValue: mockBondDataService },
+        { provide: BondFilesService, useValue: mockBondFilesService }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(App);
+    component = fixture.componentInstance;
+  });
+
+  it('should create the app', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should have initial title', () => {
+    expect(component['title']).toBe('Obligacje Skarbowe');
+  });
+
+  it('should initialize with loading false', () => {
+    expect(component.isLoading).toBe(false);
+  });
+
+  it('should initialize with no error message', () => {
+    expect(component.errorMessage).toBeNull();
+  });
+
+  it('should initialize chart data as empty array', () => {
+    expect(component.chartData).toEqual([]);
+  });
+});
