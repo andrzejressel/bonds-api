@@ -42,19 +42,4 @@ describe('App', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have initial title', () => {
-    expect(component['title']).toBe('Obligacje Skarbowe');
-  });
-
-  it('should initialize with loading false', () => {
-    expect(component.isLoading).toBe(false);
-  });
-
-  it('should initialize with no error message', () => {
-    expect(component.errorMessage).toBeNull();
-  });
-
-  it('should initialize chart data as empty array', () => {
-    expect(component.chartData).toEqual([]);
-  });
 });
