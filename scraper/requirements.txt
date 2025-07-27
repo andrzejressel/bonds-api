@@ -3,7 +3,7 @@ bs4~=0.0.2
 beautifulsoup4~=4.13.4
 camelot-py[base]~=1.0.0
 ghostscript~=0.8.1
-pypdf==5.7.0
+pypdf==5.8.0
 requests~=2.32.4
 more-itertools~=10.7.0
 pandas~=2.3.0
