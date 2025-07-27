@@ -35,7 +35,7 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         brew install ghostscript
-        sudo ln -sf $(brew --prefix)/lib/libgs.dylib /usr/local/lib/libgs.so
+        sudo ln -sf /usr/local/lib/libgs.so $(brew --prefix)/lib/libgs.dylib
 
     - name: Install system dependencies (Windows)
       if: matrix.os == 'windows-latest'
