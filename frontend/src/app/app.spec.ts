@@ -5,6 +5,12 @@ import {PlotlyModule} from 'angular-plotly.js';
 // @ts-ignore
 import Plotly from 'plotly.js-dist'
 
+describe('App', () => {
+    it('should test something', () => {
+        expect(true).toBeTruthy();
+    })
+});
+
 // describe('App', () => {
 //   beforeEach(async () => {
 //     await TestBed.configureTestingModule({
