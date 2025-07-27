@@ -1,0 +1,5 @@
+.venv
+output
+tmp
+__pycache__
+.idea
