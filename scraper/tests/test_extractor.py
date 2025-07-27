@@ -135,7 +135,7 @@ class MyTestCase(unittest.TestCase):
                         np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
         }
 
-        self.perform_test_2(filename="data/type1/tabela_odsetkowa_16931.pdf", data=data)
+        self.perform_test_2(filename=f"{THIS_DIR}/data/type1/tabela_odsetkowa_16931.pdf", data=data)
 
 
     def test_type2_firstmonth(self):
@@ -216,7 +216,7 @@ class MyTestCase(unittest.TestCase):
                         np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
         }
 
-        self.perform_test_2(filename="data/type2/tabela_odsetkowa_16957.pdf", data=data)
+        self.perform_test_2(filename=f"{THIS_DIR}/data/type2/tabela_odsetkowa_16957.pdf", data=data)
 
     def test_type3_firstmonth(self):
         data = {
@@ -248,7 +248,7 @@ class MyTestCase(unittest.TestCase):
                         np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
                         np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
         }
-        self.perform_test_2(filename="data/type3/tabela_odsetkowa_20686.pdf", data=data)
+        self.perform_test_2(filename=f"{THIS_DIR}/data/type3/tabela_odsetkowa_20686.pdf", data=data)
 
     def test_type3_nonfirstmonth(self):
         data = {
@@ -292,7 +292,7 @@ class MyTestCase(unittest.TestCase):
                         np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan,
                         np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan]
         }
-        self.perform_test_2(filename="data/type3/tabela_odsetkowa_20572.pdf", data=data)
+        self.perform_test_2(filename=f"{THIS_DIR}/data/type3/tabela_odsetkowa_20572.pdf", data=data)
 
     def perform_test(self, column, data, filename):
         # Create DataFrame
