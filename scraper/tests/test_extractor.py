@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import numpy as np
@@ -5,6 +6,7 @@ import pandas as pd
 
 from tables_extractor import extract_tables_from_pdf
 
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class MyTestCase(unittest.TestCase):
     def test_type1_firstmonth(self):
@@ -51,7 +53,7 @@ class MyTestCase(unittest.TestCase):
 
         # extract_tables_from_pdf("../output/tabela_odsetkowa_16931.pdf")
 
-        actual = extract_tables_from_pdf("data/type1/tabela_odsetkowa_16866.pdf")
+        actual = extract_tables_from_pdf(f"{THIS_DIR}/data/type1/tabela_odsetkowa_16866.pdf")
 
         pd.testing.assert_frame_equal(expected, actual)
 
@@ -97,7 +99,7 @@ class MyTestCase(unittest.TestCase):
         # Create DataFrame
         expected = pd.DataFrame(data, columns=columns, index=range(1, 32))
 
-        actual = extract_tables_from_pdf("data/type1/tabela_odsetkowa_16867.pdf")
+        actual = extract_tables_from_pdf(f"{THIS_DIR}/data/type1/tabela_odsetkowa_16867.pdf")
 
         pd.testing.assert_frame_equal(expected, actual)
 
@@ -178,7 +180,7 @@ class MyTestCase(unittest.TestCase):
         # Create DataFrame
         expected = pd.DataFrame(data, columns=columns, index=range(1, 32))
 
-        actual = extract_tables_from_pdf("data/type2/tabela_odsetkowa_16868.pdf")
+        actual = extract_tables_from_pdf(f"{THIS_DIR}/data/type2/tabela_odsetkowa_16868.pdf")
 
         pd.testing.assert_frame_equal(expected, actual)
 
