@@ -1,14 +1,13 @@
-use std::sync::Arc;
 use async_trait::async_trait;
-use axum::http::Method;
 use axum::Router;
+use axum::http::Method;
 use axum_extra::extract::{CookieJar, Host};
 use loco_rs::app::AppContext;
 use loco_rs::prelude::Initializer;
-use tracing::info;
-use loco_rs_otel::OtelInitializer;
 use openapi::apis::default::GetBondsResponse;
 use openapi::apis::default::GetBondsResponse::Status200_AJSONArrayOfBondNames;
+use std::sync::Arc;
+use tracing::info;
 
 struct ServerImpl {
     // database: sea_orm::DbConn,
@@ -18,9 +17,17 @@ struct ServerImpl {
 #[async_trait]
 impl openapi::apis::default::Default for ServerImpl {
     #[tracing::instrument(skip_all, name = "get_bonds")]
-    async fn get_bonds(&self, method: &Method, host: &Host, cookies: &CookieJar) -> Result<GetBondsResponse, ()> {
+    async fn get_bonds(
+        &self,
+        method: &Method,
+        host: &Host,
+        cookies: &CookieJar,
+    ) -> Result<GetBondsResponse, ()> {
         info!("get_bonds");
-        Ok(Status200_AJSONArrayOfBondNames(vec!["Bond1".to_string(), "Bond2".to_string()]))
+        Ok(Status200_AJSONArrayOfBondNames(vec![
+            "Bond1".to_string(),
+            "Bond2".to_string(),
+        ]))
     }
 }
 
@@ -50,9 +57,8 @@ impl Initializer for OpenApiInitializer {
     }
 }
 
-
-// 
+//
 // let app = openapi::server::new(Arc::new(ServerImpl {}));
-// 
+//
 // Ok(router.merge(app))
-//         
+//

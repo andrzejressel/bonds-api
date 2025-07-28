@@ -1,21 +1,21 @@
 use crate::config::{OtelConfig, OtelTransport};
 use loco_rs::prelude::Result;
 use opentelemetry::propagation::TextMapCompositePropagator;
-use opentelemetry::{global, trace::TracerProvider as _, KeyValue};
+use opentelemetry::{KeyValue, global, trace::TracerProvider as _};
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
 use opentelemetry_otlp::{WithExportConfig, WithHttpConfig};
 use opentelemetry_sdk::logs::SdkLoggerProvider;
 use opentelemetry_sdk::metrics::SdkMeterProvider;
 use opentelemetry_sdk::propagation::{BaggagePropagator, TraceContextPropagator};
 use opentelemetry_sdk::{
+    Resource,
     metrics::{MeterProviderBuilder, PeriodicReader},
     trace::{RandomIdGenerator, Sampler, SdkTracerProvider},
-    Resource,
 };
-use opentelemetry_semantic_conventions::{attribute::SERVICE_VERSION, SCHEMA_URL};
+use opentelemetry_semantic_conventions::{SCHEMA_URL, attribute::SERVICE_VERSION};
 use tracing_core::LevelFilter;
 use tracing_opentelemetry::{MetricsLayer, OpenTelemetryLayer};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, Layer};
+use tracing_subscriber::{Layer, layer::SubscriberExt, util::SubscriberInitExt};
 
 pub fn init(config: &OtelConfig) -> Result<()> {
     let meter_provider = create_meter_provider(config)?;
@@ -28,15 +28,11 @@ pub fn init(config: &OtelConfig) -> Result<()> {
 
     // global::set_text_map_propagator(TraceContextPropagator::new());
 
-    global::set_text_map_propagator(
-        TextMapCompositePropagator::new(
-            vec![
-                Box::new(TraceContextPropagator::new()),
-                Box::new(BaggagePropagator::new()),
-            ]
-        )
-    );
-    
+    global::set_text_map_propagator(TextMapCompositePropagator::new(vec![
+        Box::new(TraceContextPropagator::new()),
+        Box::new(BaggagePropagator::new()),
+    ]));
+
     let tracer = tracer_provider.tracer("tracing-otel-subscriber");
     tracing_subscriber::registry()
         // The global level filter prevents the exporter network stack

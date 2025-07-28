@@ -25,9 +25,8 @@ impl Initializer for OtelInitializer {
     }
 
     async fn before_run(&self, app_context: &AppContext) -> Result<()> {
-
         let settings = &app_context.config.settings;
-        
+
         match settings {
             Some(s) => match serde_json::from_value::<RootSettings>(s.clone()) {
                 Ok(c) => match c.otel {

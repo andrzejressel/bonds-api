@@ -5,3 +5,10 @@ gen-api:
     
 lgtm:
     docker run -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -ti grafana/otel-lgtm
+    
+fmt:
+    cargo fmt
+    
+fmt-clippy:
+    cargo clippy --tests --all-features --fix --allow-dirty --allow-staged
+    just fmt

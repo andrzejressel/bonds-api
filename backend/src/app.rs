@@ -1,10 +1,8 @@
-use std::convert::Infallible;
-use std::sync::Arc;
+use crate::initializers::openapi::OpenApiInitializer;
 #[allow(unused_imports)]
 use crate::{controllers, tasks};
 use async_trait::async_trait;
-use axum::http::Method;
-use axum::Router;
+use axum::Router as AxumRouter;
 use loco_rs::{
     Result,
     app::{AppContext, Hooks, Initializer},
@@ -16,8 +14,6 @@ use loco_rs::{
     task::Tasks,
 };
 use loco_rs_otel::OtelInitializer;
-use axum::Router as AxumRouter;
-use crate::initializers::openapi::OpenApiInitializer;
 
 pub struct App;
 
@@ -52,7 +48,7 @@ impl Hooks for App {
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
         Ok(vec![
             Box::new(OpenApiInitializer::new()),
-            Box::new(OtelInitializer::new())
+            Box::new(OtelInitializer::new()),
         ])
     }
 
@@ -60,13 +56,12 @@ impl Hooks for App {
         AppRoutes::with_default_routes() // controller routes below
             .add_route(controllers::obligacje::routes())
             .add_route(controllers::home::routes())
-        
     }
 
     async fn after_routes(router: AxumRouter, _ctx: &AppContext) -> Result<AxumRouter> {
         Ok(router)
     }
-    
+
     async fn connect_workers(_ctx: &AppContext, _queue: &Queue) -> Result<()> {
         Ok(())
     }
