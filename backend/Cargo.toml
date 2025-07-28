@@ -1,0 +1,71 @@
+[workspace]
+members = [
+    "crates/loco-rs-otel",
+    "crates/api"
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MPL-2.0"
+
+[package]
+name = "myapp"
+version.workspace = true
+edition.workspace = true
+publish = false
+default-run = "myapp-cli"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[workspace.dependencies]
+loco-rs = { version = "0.16.1", default-features = false }
+axum = { version = "0.8.1" }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
+tracing = { version = "0.1.40" }
+opentelemetry = "0.30.0"
+opentelemetry_sdk = "0.30.0"
+tracing-opentelemetry = "0.31.0"
+tracing-core = "0.1.34"
+opentelemetry-semantic-conventions = "0.30.0"
+opentelemetry-stdout = "0.30.0"
+opentelemetry-otlp = "0.30.0"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
+loco-rs-otel = { path = "crates/loco-rs-otel" }
+openapi = { path = "crates/api" }
+axum-tracing-opentelemetry = { version = "0.29.0" }
+opentelemetry-appender-tracing = { version = "0.30.1", features = ["experimental_use_tracing_span_context", "experimental_metadata_attributes"] }
+axum-otel-metrics = "0.12.0"
+include_dir = "0.7.4"
+axum-extra = "0.10.1"
+
+[dependencies]
+loco-rs = { workspace = true, features = ["cli"] }
+serde.workspace = true
+serde_json.workspace = true
+tokio = { version = "1.33.0", default-features = false, features = [
+    "rt-multi-thread",
+] }
+tracing.workspace = true
+axum.workspace = true
+async-trait = { version = "0.1.74" }
+loco-rs-otel.workspace = true
+include_dir.workspace = true
+openapi.workspace = true
+axum-extra.workspace = true
+
+[[bin]]
+name = "myapp-cli"
+path = "src/bin/main.rs"
+required-features = []
+[[bin]]
+name = "tool"
+path = "src/bin/tool.rs"
+required-features = []
+
+[dev-dependencies]
+loco-rs = { workspace = true, features = ["testing"] }
+serial_test = { version = "3.1.1" }
+rstest = { version = "0.21.0" }
+insta = { version = "1.34.0", features = ["redactions", "yaml", "filters"] }
