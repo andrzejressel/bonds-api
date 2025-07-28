@@ -26,6 +26,7 @@ pub(crate) struct OtelCommon {
 #[derive(Deserialize)]
 #[serde(tag = "type")]
 pub(crate) enum OtelTransport {
+    #[allow(clippy::upper_case_acronyms)]
     HTTP(OtelTransportHttp),
 }
 

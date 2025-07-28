@@ -12,3 +12,6 @@ fmt:
 fmt-clippy:
     cargo clippy --tests --all-features --fix --allow-dirty --allow-staged
     just fmt
+    
+clippy:
+    cargo clippy --all-targets --all-features -- -D warnings -A clippy::uninlined_format_args

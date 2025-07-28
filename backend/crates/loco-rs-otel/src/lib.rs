@@ -10,6 +10,7 @@ use loco_rs::app::AppContext;
 use loco_rs::prelude::{Initializer, async_trait};
 use loco_rs::{Error, Result};
 
+#[derive(Default)]
 pub struct OtelInitializer {}
 
 impl OtelInitializer {
@@ -44,7 +45,7 @@ impl Initializer for OtelInitializer {
 
     async fn after_routes(&self, router: Router, _ctx: &AppContext) -> Result<Router> {
         let router = router
-            .layer(OtelInResponseLayer::default())
+            .layer(OtelInResponseLayer)
             .layer(OtelAxumLayer::default())
             .layer(HttpMetricsLayerBuilder::new().build());
         Ok(router)
