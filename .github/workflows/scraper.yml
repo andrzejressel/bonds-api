@@ -72,7 +72,5 @@ jobs:
       if: matrix.config.codecov && matrix.python-version.codecov
       uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
       with:
-        file: ./scraper/coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
+        files: ./scraper/coverage.xml
+        fail_ci_if_error: true
