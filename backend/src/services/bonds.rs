@@ -1,5 +1,4 @@
 use anyhow::{Context, Result};
-use axum::routing::any;
 use chrono::NaiveDate;
 use serde::Deserialize;
 use std::fs;
@@ -82,7 +81,7 @@ fn load_bonds_from_directory<P: AsRef<Path>>(directory: P) -> Result<Vec<Bond>> 
                 .with_context(|| format!("Failed to parse JSON from file: {}", path.display()))?;
 
             let bond = Bond::from_file_data(filename, bond_data)
-                .with_context(|| format!("Failed to create Bond from file: {}", filename))?;
+                .with_context(|| format!("Failed to create Bond from file: {filename}"))?;
 
             bonds.push(bond);
         }

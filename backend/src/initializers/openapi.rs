@@ -10,8 +10,6 @@ use openapi::apis::ErrorHandler;
 use openapi::apis::default::GetBondsResponse::Status200_AJSONArrayOfBondNames;
 use openapi::apis::default::{GetBondResponse, GetBondsResponse};
 use openapi::models::GetBondPathParams;
-use std::fs;
-use std::path::PathBuf;
 use std::sync::Arc;
 
 struct ServerImpl {
@@ -81,8 +79,6 @@ impl Initializer for OpenApiInitializer {
     }
 
     async fn after_routes(&self, router: Router, ctx: &AppContext) -> loco_rs::Result<Router> {
-        let p: PathBuf = ".".to_string().into();
-
         let settings = &ctx
             .config
             .settings

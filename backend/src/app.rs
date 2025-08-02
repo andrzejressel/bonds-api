@@ -54,7 +54,7 @@ impl Hooks for App {
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
         // read openapi.yaml file
         let content = include_str!("../openapi.yaml");
-        let openapi = serde_yaml::from_str::<utoipa::openapi::OpenApi>(&content)
+        let openapi = serde_yaml::from_str::<utoipa::openapi::OpenApi>(content)
             .context("Failed to parse openapi.yaml")
             .map_err(|e| loco_rs::errors::Error::from(e.into_boxed_dyn_error()))?;
 
