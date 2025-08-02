@@ -10,6 +10,16 @@ use crate::{models, types::*};
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 #[allow(clippy::large_enum_variant)]
+pub enum GetBondResponse {
+    /// A single bond object
+    Status200_ASingleBondObject(models::GetBond200Response),
+    /// Bond not found
+    Status404_BondNotFound(models::GetBond404Response),
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[must_use]
+#[allow(clippy::large_enum_variant)]
 pub enum GetBondsResponse {
     /// A JSON array of bond names
     Status200_AJSONArrayOfBondNames(Vec<String>),
@@ -19,6 +29,17 @@ pub enum GetBondsResponse {
 #[async_trait]
 #[allow(clippy::ptr_arg)]
 pub trait Default<E: std::fmt::Debug + Send + Sync + 'static = ()>: super::ErrorHandler<E> {
+    /// Returns a single bond by ID..
+    ///
+    /// GetBond - GET /bonds/{id}
+    async fn get_bond(
+        &self,
+        method: &Method,
+        host: &Host,
+        cookies: &CookieJar,
+        path_params: &models::GetBondPathParams,
+    ) -> Result<GetBondResponse, E>;
+
     /// Returns a list of bonds..
     ///
     /// GetBonds - GET /bonds
