@@ -1,8 +1,8 @@
 use loco_rs::testing::prelude::*;
 use myapp::app::App;
+use pretty_assertions::assert_eq;
 use serde_json::json;
 use serial_test::serial;
-use pretty_assertions::assert_eq;
 
 #[tokio::test]
 #[serial]
