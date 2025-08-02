@@ -25,6 +25,9 @@ server:
   # Out of the box middleware configuration. to disable middleware you can changed the `enable` field to `false` of comment the middleware block
   middlewares:
 
+settings:
+  bonds_location: "../scraper/output"
+
 # Initializers Configuration
 # initializers:
 #  oauth2:
@@ -32,10 +35,23 @@ server:
 #      - client_identifier: google # Identifier for the OAuth2 provider. Replace 'google' with your provider's name if different, must be unique within the oauth2 config.
 #        ... other fields
 
-settings:
+initializers:
   otel:
     type: Enabled
     common:
       transport:
         type: HTTP
         url: "http://localhost:4318"
+  openapi:
+    redoc:
+      url: /redoc
+      # spec_json_url: /redoc/openapi.json
+      # spec_yaml_url: /redoc/openapi.yaml
+    scalar:
+      url: /scalar
+      # spec_json_url: /scalar/openapi.json
+      # spec_yaml_url: /scalar/openapi.yaml
+    swagger:
+      url: /swagger
+      spec_json_url: /api-docs/openapi.json # spec_json_url is required for swagger-ui
+      # spec_yaml_url: /api-docs/openapi.yaml

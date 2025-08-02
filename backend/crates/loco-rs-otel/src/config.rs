@@ -2,18 +2,6 @@ use serde::Deserialize;
 use std::collections::HashMap;
 
 #[derive(Deserialize)]
-pub(crate) struct RootSettings {
-    pub(crate) otel: Otel,
-}
-
-#[derive(Deserialize)]
-#[serde(tag = "type")]
-pub(crate) enum Otel {
-    Enabled(OtelConfig),
-    Disabled,
-}
-
-#[derive(Deserialize)]
 pub(crate) struct OtelConfig {
     pub(crate) common: OtelCommon,
 }

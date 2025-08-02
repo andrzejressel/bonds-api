@@ -22,7 +22,103 @@ where
     // build our application with a route
     Router::new()
         .route("/bonds", get(get_bonds::<I, A, E>))
+        .route("/bonds/{id}", get(get_bond::<I, A, E>))
         .with_state(api_impl)
+}
+
+#[tracing::instrument(skip_all)]
+fn get_bond_validation(
+    path_params: models::GetBondPathParams,
+) -> std::result::Result<(models::GetBondPathParams,), ValidationErrors> {
+    path_params.validate()?;
+
+    Ok((path_params,))
+}
+/// GetBond - GET /bonds/{id}
+#[tracing::instrument(skip_all)]
+async fn get_bond<I, A, E>(
+    method: Method,
+    host: Host,
+    cookies: CookieJar,
+    Path(path_params): Path<models::GetBondPathParams>,
+    State(api_impl): State<I>,
+) -> Result<Response, StatusCode>
+where
+    I: AsRef<A> + Send + Sync,
+    A: apis::default::Default<E> + Send + Sync,
+    E: std::fmt::Debug + Send + Sync + 'static,
+{
+    let validation = get_bond_validation(path_params);
+
+    let Ok((path_params,)) = validation else {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::from(validation.unwrap_err().to_string()))
+            .map_err(|_| StatusCode::BAD_REQUEST);
+    };
+
+    let result = api_impl
+        .as_ref()
+        .get_bond(&method, &host, &cookies, &path_params)
+        .await;
+
+    let mut response = Response::builder();
+
+    let resp = match result {
+        Ok(rsp) => match rsp {
+            apis::default::GetBondResponse::Status200_ASingleBondObject(body) => {
+                let mut response = response.status(200);
+                {
+                    let mut response_headers = response.headers_mut().unwrap();
+                    response_headers.insert(
+                        CONTENT_TYPE,
+                        HeaderValue::from_str("application/json").map_err(|e| {
+                            error!(error = ?e);
+                            StatusCode::INTERNAL_SERVER_ERROR
+                        })?,
+                    );
+                }
+
+                let body_content = serde_json::to_vec(&body).map_err(|e| {
+                    error!(error = ?e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                })?;
+                response.body(Body::from(body_content))
+            }
+            apis::default::GetBondResponse::Status404_BondNotFound(body) => {
+                let mut response = response.status(404);
+                {
+                    let mut response_headers = response.headers_mut().unwrap();
+                    response_headers.insert(
+                        CONTENT_TYPE,
+                        HeaderValue::from_str("application/json").map_err(|e| {
+                            error!(error = ?e);
+                            StatusCode::INTERNAL_SERVER_ERROR
+                        })?,
+                    );
+                }
+
+                let body_content = serde_json::to_vec(&body).map_err(|e| {
+                    error!(error = ?e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                })?;
+                response.body(Body::from(body_content))
+            }
+        },
+        Err(why) => {
+            // Application code returned an error. This should not happen, as the implementation should
+            // return a valid response.
+            return api_impl
+                .as_ref()
+                .handle_error(&method, &host, &cookies, why)
+                .await;
+        }
+    };
+
+    resp.map_err(|e| {
+        error!(error = ?e);
+        StatusCode::INTERNAL_SERVER_ERROR
+    })
 }
 
 #[tracing::instrument(skip_all)]
@@ -42,10 +138,7 @@ where
     A: apis::default::Default<E> + Send + Sync,
     E: std::fmt::Debug + Send + Sync + 'static,
 {
-    #[allow(clippy::redundant_closure)]
-    let validation = tokio::task::spawn_blocking(move || get_bonds_validation())
-        .await
-        .unwrap();
+    let validation = get_bonds_validation();
 
     let Ok(()) = validation else {
         return Response::builder()
@@ -73,14 +166,10 @@ where
                     );
                 }
 
-                let body_content = tokio::task::spawn_blocking(move || {
-                    serde_json::to_vec(&body).map_err(|e| {
-                        error!(error = ?e);
-                        StatusCode::INTERNAL_SERVER_ERROR
-                    })
-                })
-                .await
-                .unwrap()?;
+                let body_content = serde_json::to_vec(&body).map_err(|e| {
+                    error!(error = ?e);
+                    StatusCode::INTERNAL_SERVER_ERROR
+                })?;
                 response.body(Body::from(body_content))
             }
         },

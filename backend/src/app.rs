@@ -1,8 +1,10 @@
 use crate::initializers::openapi::OpenApiInitializer;
 #[allow(unused_imports)]
 use crate::{controllers, tasks};
+use anyhow::Context;
 use async_trait::async_trait;
 use axum::Router as AxumRouter;
+use loco_openapi::prelude::utoipa;
 use loco_rs::{
     Result,
     app::{AppContext, Hooks, Initializer},
@@ -45,8 +47,22 @@ impl Hooks for App {
         Ok(true)
     }
 
+    async fn after_routes(router: AxumRouter, _ctx: &AppContext) -> Result<AxumRouter> {
+        Ok(router)
+    }
+
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
+        // read openapi.yaml file
+        let content = include_str!("../openapi.yaml");
+        let openapi = serde_yaml::from_str::<utoipa::openapi::OpenApi>(&content)
+            .context("Failed to parse openapi.yaml")
+            .map_err(|e| loco_rs::errors::Error::from(e.into_boxed_dyn_error()))?;
+
         Ok(vec![
+            Box::new(loco_openapi::OpenapiInitializerWithSetup::new(
+                move |_| openapi.clone(),
+                None,
+            )),
             Box::new(OpenApiInitializer::new()),
             Box::new(OtelInitializer::new()),
         ])
@@ -56,10 +72,6 @@ impl Hooks for App {
         AppRoutes::with_default_routes() // controller routes below
             .add_route(controllers::obligacje::routes())
             .add_route(controllers::home::routes())
-    }
-
-    async fn after_routes(router: AxumRouter, _ctx: &AppContext) -> Result<AxumRouter> {
-        Ok(router)
     }
 
     async fn connect_workers(_ctx: &AppContext, _queue: &Queue) -> Result<()> {

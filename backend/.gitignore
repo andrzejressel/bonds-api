@@ -18,5 +18,3 @@ target/
 
 *.sqlite
 *.sqlite-*
-
-.cargo

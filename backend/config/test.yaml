@@ -31,5 +31,4 @@ server:
 #        ... other fields
 
 settings:
-  otel:
-    type: Disabled
+  bonds_location: "tests/fixtures/bonds"

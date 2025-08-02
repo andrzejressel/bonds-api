@@ -1,17 +1,26 @@
 set windows-shell := ["pwsh.exe", "-c"]
 
+watch:
+    watchexec -r -- cargo loco start
+
+watch-prod:
+    watchexec -r -- cargo loco start -e "production"
+
+watch-test:
+    watchexec -r -- cargo test
+
 gen-api:
-    npx --yes @openapitools/openapi-generator-cli@2.21.4 generate -g rust-axum -i .\openapi.yaml --enable-post-process-file -o crates/api --additional-properties generateAliasAsModel=true
-    
+    npx --yes @openapitools/openapi-generator-cli@2.21.4 generate -g rust-axum -i .\openapi.yaml --enable-post-process-file -o crates/api --additional-properties generateAliasAsModel=true,allowBlockingValidator=true,allowBlockingResponseSerialize=true
+
 lgtm:
-    docker run -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -ti grafana/otel-lgtm
-    
+    docker run -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -ti grafana/otel-lgtm:0.11.6
+
 fmt:
     cargo fmt
-    
+
 fmt-clippy:
     cargo clippy --tests --all-features --fix --allow-dirty --allow-staged
     just fmt
-    
+
 clippy:
     cargo clippy --all-targets --all-features -- -D warnings -A clippy::uninlined_format_args

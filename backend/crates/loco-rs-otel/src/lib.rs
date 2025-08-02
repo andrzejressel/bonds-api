@@ -1,7 +1,7 @@
 mod config;
 mod otel;
 
-use crate::config::{Otel, RootSettings};
+use crate::config::OtelConfig;
 use crate::otel::init;
 use axum::routing::Router;
 use axum_otel_metrics::HttpMetricsLayerBuilder;
@@ -9,6 +9,7 @@ use axum_tracing_opentelemetry::middleware::{OtelAxumLayer, OtelInResponseLayer}
 use loco_rs::app::AppContext;
 use loco_rs::prelude::{Initializer, async_trait};
 use loco_rs::{Error, Result};
+use tracing::log::warn;
 
 #[derive(Default)]
 pub struct OtelInitializer {}
@@ -26,20 +27,24 @@ impl Initializer for OtelInitializer {
     }
 
     async fn before_run(&self, app_context: &AppContext) -> Result<()> {
-        let settings = &app_context.config.settings;
+        let settings = &app_context
+            .config
+            .initializers
+            .as_ref()
+            .and_then(|s| s.get("otel"))
+            .cloned();
 
         match settings {
-            Some(s) => match serde_json::from_value::<RootSettings>(s.clone()) {
-                Ok(c) => match c.otel {
-                    Otel::Enabled(settings) => init(&settings),
-                    Otel::Disabled => {
-                        println!("OpenTelemetry is disabled in the configuration.");
-                        Ok(())
-                    }
-                },
+            Some(s) => match serde_json::from_value::<OtelConfig>(s.clone()) {
+                Ok(v) => init(&v),
                 Err(e) => Err(Error::from(e)),
             },
-            None => Err(Error::string("Configuration missing required 'settings'")),
+            None => {
+                warn!(
+                    "OpenTelemetry configuration not found in the settings. Please ensure it is properly configured."
+                );
+                Ok(())
+            }
         }
     }
 

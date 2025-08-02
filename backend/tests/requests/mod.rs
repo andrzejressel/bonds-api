@@ -1,3 +1,1 @@
-mod home;
-
-pub mod obligacje;
+pub mod bonds;
