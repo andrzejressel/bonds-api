@@ -65,6 +65,7 @@ loco-openapi.workspace = true
 serde_yaml.workspace = true
 anyhow.workspace = true
 chrono.workspace = true
+tower-http = { version = "0.6.6", features = ["cors"] }
 
 [[bin]]
 name = "myapp-cli"

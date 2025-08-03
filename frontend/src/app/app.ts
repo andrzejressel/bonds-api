@@ -12,7 +12,6 @@ import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {BondDataService, BondData} from './services/bond-data.service';
 import {ReplaySubject, Subject, Subscription, takeUntil} from 'rxjs';
-import {BondFilesService} from './services/bond-files.service';
 import {NgxMatSelectSearchModule} from 'ngx-mat-select-search';
 
 @Component({
@@ -60,12 +59,12 @@ export class App implements OnInit, OnDestroy {
 
   private subscription: Subscription | null = null;
 
-  constructor(private bondDataService: BondDataService, private bondFilesService: BondFilesService) {
+  constructor(private bondDataService: BondDataService) {
   }
 
   ngOnInit() {
 
-    this.bondFilesService.getBondNames().subscribe({
+    this.bondDataService.getBondNames().subscribe({
       next: (bondNames: string[]) => {
         this.bondNames = bondNames;
         this.selectedBondType = bondNames[0];
@@ -131,6 +130,7 @@ export class App implements OnInit, OnDestroy {
 
     this.subscription = this.bondDataService.getBondData(this.selectedBondType).subscribe({
       next: (data: BondData) => {
+        console.log(data)
         this.setupBondChart(data);
         this.isLoading = false;
       },
