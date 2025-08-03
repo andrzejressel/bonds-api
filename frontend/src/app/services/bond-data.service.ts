@@ -1,6 +1,6 @@
 import {Inject, Injectable, InjectionToken} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable, from, throwError, timer, forkJoin, first, pipe} from 'rxjs';
+import {Observable, from, throwError, timer, forkJoin, first} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import * as d3 from 'd3';
 
@@ -57,7 +57,6 @@ export class BondDataService {
       .pipe(
         map(csvContent => {
           const data = d3.csvParse(csvContent)
-          console.log("csv", data)
           const dates: string[] = [];
           const values: number[] = [];
 
