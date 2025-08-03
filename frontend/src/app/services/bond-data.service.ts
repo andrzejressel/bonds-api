@@ -57,7 +57,6 @@ export class BondDataService {
       .pipe(
         map(csvContent => {
           const data = d3.csvParse(csvContent)
-          console.log("csv", data)
           const dates: string[] = [];
           const values: number[] = [];
 
