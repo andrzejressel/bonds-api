@@ -130,7 +130,6 @@ export class App implements OnInit, OnDestroy {
 
     this.subscription = this.bondDataService.getBondData(this.selectedBondType).subscribe({
       next: (data: BondData) => {
-        console.log(data)
         this.setupBondChart(data);
         this.isLoading = false;
       },
