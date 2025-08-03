@@ -1,6 +1,6 @@
 import {Inject, Injectable, InjectionToken} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable, from, throwError, timer, forkJoin, first, pipe} from 'rxjs';
+import {Observable, from, throwError, timer, forkJoin, first} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import * as d3 from 'd3';
 
