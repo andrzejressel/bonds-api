@@ -2207,7 +2207,6 @@ dependencies = [
  "serial_test",
  "tempfile",
  "tokio",
- "tower-http",
  "tracing",
 ]
 

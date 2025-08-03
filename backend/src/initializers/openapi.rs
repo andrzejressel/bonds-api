@@ -2,18 +2,16 @@ use crate::services::bonds::{BondId, BondsService, BondsServiceImpl};
 use anyhow::{Context, Error};
 use async_trait::async_trait;
 use axum::Router;
-use axum::http::{header, Method};
+use axum::http::Method;
 use axum_extra::extract::{CookieJar, Host};
 use loco_rs::app::AppContext;
+use loco_rs::controller::middleware::cors;
 use loco_rs::prelude::Initializer;
 use openapi::apis::ErrorHandler;
 use openapi::apis::default::GetBondsResponse::Status200_AJSONArrayOfBondNames;
 use openapi::apis::default::{GetBondCsvResponse, GetBondResponse, GetBondsResponse};
 use openapi::models::{GetBond404Response, GetBondCsvPathParams, GetBondPathParams};
 use std::sync::Arc;
-use axum::response::Response;
-use loco_rs::controller::format;
-use loco_rs::controller::middleware::cors;
 
 struct ServerImpl {
     bonds_service: Box<dyn BondsService + Send + Sync>,
@@ -44,11 +42,7 @@ impl openapi::apis::default::Default<Error> for ServerImpl {
         Err(anyhow::anyhow!("TEST").context("Failed to get bond"))
     }
 
-    #[tracing::instrument(
-        err(Debug),
-        skip(self, method, host, cookies),
-        name = "get_bond_csv"
-    )]
+    #[tracing::instrument(err(Debug), skip(self, method, host, cookies), name = "get_bond_csv")]
     async fn get_bond_csv(
         &self,
         method: &Method,
@@ -62,11 +56,13 @@ impl openapi::apis::default::Default<Error> for ServerImpl {
             Some(bond) => {
                 let csv_data = bond.to_csv();
                 Ok(GetBondCsvResponse::Status200_BondDataInCSVFormat(csv_data))
-            },
-            None =>
-                Ok(GetBondCsvResponse::Status404_BondNotFound(GetBond404Response::new(
-                    format!("Bond with ID {} not found", path_params.id.clone()
-                ))))
+            }
+            None => Ok(GetBondCsvResponse::Status404_BondNotFound(
+                GetBond404Response::new(format!(
+                    "Bond with ID {} not found",
+                    path_params.id.clone()
+                )),
+            )),
         }
     }
 
@@ -129,12 +125,19 @@ impl Initializer for OpenApiInitializer {
             .context("Failed to create BondsService")
             .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
 
-        let cors = &ctx.config.server.middlewares.cors.clone().unwrap_or_else(|| cors::Cors {
-            enable: false,
-            ..Default::default()
-        });
-        
-        let cors = cors.cors()
+        let cors = &ctx
+            .config
+            .server
+            .middlewares
+            .cors
+            .clone()
+            .unwrap_or_else(|| cors::Cors {
+                enable: false,
+                ..Default::default()
+            });
+
+        let cors = cors
+            .cors()
             .context("Cannot create cors layer")
             .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
 

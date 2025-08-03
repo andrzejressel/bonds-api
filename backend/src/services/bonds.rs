@@ -14,9 +14,6 @@ impl BondId {
     pub fn value(self) -> String {
         self.0
     }
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
 }
 
 #[derive(Debug, Deserialize, PartialEq)]
@@ -55,10 +52,6 @@ impl Bond {
         }
 
         csv
-    }
-
-    pub fn id(&self) -> &BondId {
-        &self.id
     }
 }
 

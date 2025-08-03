@@ -23,7 +23,7 @@ async fn can_get_existing_bond_csv() {
         let res = request.get("/bonds/TEST123/csv").await;
 
         assert_eq!(res.status_code(), 200);
-        
+
         // Expected CSV format based on the test fixture data
         let expected_csv = "date,value\n2023-01-15,1\n2023-01-16,1.5\n2023-01-17,2\n";
         assert_eq!(res.text(), expected_csv);
