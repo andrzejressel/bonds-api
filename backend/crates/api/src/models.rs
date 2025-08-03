@@ -16,6 +16,13 @@ pub struct GetBondPathParams {
 
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
+pub struct GetBondCsvPathParams {
+    /// The ID of the bond to download as CSV
+    pub id: String,
+}
+
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
+#[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct GetBond200Response {
     /// The bond ID
     #[serde(rename = "id")]

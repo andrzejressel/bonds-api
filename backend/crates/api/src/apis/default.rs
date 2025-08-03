@@ -20,6 +20,16 @@ pub enum GetBondResponse {
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 #[must_use]
 #[allow(clippy::large_enum_variant)]
+pub enum GetBondCsvResponse {
+    /// Bond data in CSV format
+    Status200_BondDataInCSVFormat(String),
+    /// Bond not found
+    Status404_BondNotFound(models::GetBond404Response),
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[must_use]
+#[allow(clippy::large_enum_variant)]
 pub enum GetBondsResponse {
     /// A JSON array of bond names
     Status200_AJSONArrayOfBondNames(Vec<String>),
@@ -39,6 +49,17 @@ pub trait Default<E: std::fmt::Debug + Send + Sync + 'static = ()>: super::Error
         cookies: &CookieJar,
         path_params: &models::GetBondPathParams,
     ) -> Result<GetBondResponse, E>;
+
+    /// Download bond data in CSV format.
+    ///
+    /// GetBondCsv - GET /bonds/{id}/csv
+    async fn get_bond_csv(
+        &self,
+        method: &Method,
+        host: &Host,
+        cookies: &CookieJar,
+        path_params: &models::GetBondCsvPathParams,
+    ) -> Result<GetBondCsvResponse, E>;
 
     /// Returns a list of bonds..
     ///

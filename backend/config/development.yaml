@@ -24,7 +24,11 @@ server:
   host: http://localhost
   # Out of the box middleware configuration. to disable middleware you can changed the `enable` field to `false` of comment the middleware block
   middlewares:
-
+    cors:
+      enable: true
+    fallback:
+      enable: false
+ 
 settings:
   bonds_location: "../scraper/output"
 

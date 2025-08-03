@@ -63,3 +63,36 @@ paths:
                     description: Error message
                 required:
                   - error
+
+  /bonds/{id}/csv:
+    get:
+      operationId: getBondCsv
+      summary: Download bond data in CSV format
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the bond to download as CSV
+          schema:
+            type: string
+            example: EDO1233
+      responses:
+        "200":
+          description: Bond data in CSV format
+          content:
+            text/csv:
+              schema:
+                type: string
+                description: CSV file with date and value columns
+        "404":
+          description: Bond not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+                required:
+                  - error

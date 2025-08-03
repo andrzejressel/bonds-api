@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable, InjectionToken} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, from, throwError, timer, forkJoin, first} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
@@ -9,16 +9,25 @@ export interface BondData {
   bondValues: number[];
 }
 
+export const BOND_API_URL = new InjectionToken<string>('BOND_API_URL');
+
 @Injectable({
   providedIn: 'root'
 })
 export class BondDataService {
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    @Inject(BOND_API_URL) private bondApiUrl: string
+  ) {
+  }
+
+  getBondNames(): Observable<string[]> {
+    return this.http.get<string[]>(this.bondApiUrl + "/bonds");
   }
 
   /**
    * Fetches bond data from the CSV file
-   * @param bondType The type of bond to fetch data for
+   * @param bondName The name of bond to fetch data for
    * @returns Observable with bond data
    */
   getBondData(bondName: string): Observable<BondData> {
@@ -39,31 +48,32 @@ export class BondDataService {
       .pipe(first())
   }
 
-  /**
-   * Fetches and parses the CSV file using d3.csv
-   */
+
   private getCSVData(bondName: string): Observable<BondData> {
-    // d3.csv returns a Promise that resolves to an array of objects
-    // We convert it to an Observable using the 'from' operator
-    const url = `assets/${bondName}.csv`;
-    return from(d3.csv(url)).pipe(
-      map(data => {
-        const dates: string[] = [];
-        const values: number[] = [];
 
-        // Extract dates and values from the parsed CSV data
-        data.forEach(row => {
-          if (row['Date'] && row['Value']) {
-            dates.push(row['Date']);
-            values.push(+row['Value']); // Convert string to number using the + operator
-          }
-        });
+    return this.http.get(this.bondApiUrl + "/bonds/" + bondName + "/csv", {
+      responseType: "text"
+    })
+      .pipe(
+        map(csvContent => {
+          const data = d3.csvParse(csvContent)
+          const dates: string[] = [];
+          const values: number[] = [];
 
-        return {
-          dates: dates,
-          bondValues: values,
-        };
-      })
-    );
+          // Extract dates and values from the parsed CSV data
+          data.forEach(row => {
+            if (row['date'] && row['value']) {
+              dates.push(row['date']);
+              values.push(+row['value']); // Convert string to number using the + operator
+            }
+          });
+
+          return {
+            dates: dates,
+            bondValues: values,
+          };
+        })
+      );
   }
+
 }

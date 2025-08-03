@@ -8,10 +8,12 @@ import { provideRouter } from '@angular/router';
 // @ts-ignore
 import Plotly from 'plotly.js-dist'
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 
 import { routes } from './app.routes';
 import {PlotlyModule} from 'angular-plotly.js';
+import {BOND_API_URL} from './services/bond-data.service';
+import {environment} from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,9 +21,13 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimations(),
+    provideHttpClient(withInterceptorsFromDi()),
     importProvidersFrom(
-      PlotlyModule.forRoot(Plotly),
-      HttpClientModule
-    )
+      PlotlyModule.forRoot(Plotly)
+    ),
+    {
+      provide: BOND_API_URL,
+      useValue: environment.apiUrl
+    }
   ]
 };

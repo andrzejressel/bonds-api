@@ -8,6 +8,9 @@ use std::path::Path;
 pub(crate) struct BondId(String);
 
 impl BondId {
+    pub fn new<S: Into<String>>(id: S) -> Self {
+        BondId(id.into())
+    }
     pub fn value(self) -> String {
         self.0
     }
@@ -38,6 +41,17 @@ impl Bond {
             initial_date: data.first_date,
             values: data.values,
         })
+    }
+
+    pub fn to_csv(&self) -> String {
+        let mut csv = String::from("date,value\n");
+
+        for (index, value) in self.values.iter().enumerate() {
+            let date = self.initial_date + chrono::Duration::days(index as i64);
+            csv.push_str(&format!("{},{}\n", date.format("%Y-%m-%d"), value));
+        }
+
+        csv
     }
 }
 
@@ -92,6 +106,7 @@ fn load_bonds_from_directory<P: AsRef<Path>>(directory: P) -> Result<Vec<Bond>> 
 
 pub(crate) trait BondsService {
     fn get_bonds(&self) -> Vec<BondId>;
+    fn get_bond(&self, id: &BondId) -> Option<&Bond>;
 }
 
 pub(crate) struct BondsServiceImpl {
@@ -114,6 +129,10 @@ impl BondsService for BondsServiceImpl {
         let mut v: Vec<_> = self.map.keys().cloned().collect();
         v.sort();
         v
+    }
+
+    fn get_bond(&self, id: &BondId) -> Option<&Bond> {
+        self.map.get(id)
     }
 }
 
@@ -203,18 +222,22 @@ mod tests {
         let bond_ids = service.get_bonds();
 
         assert_eq!(bond_ids, vec![BondId("SERVICE_TEST".to_string())]);
-        // Test the service method
-        // let bonds = service
-        //     .load_bonds(temp_path)
-        //     .expect("Failed to load bonds via service");
-        //
-        // assert_eq!(bonds.len(), 1);
-        // let bond = &bonds[0];
-        // let expected = Bond {
-        //     id: BondId("SERVICE_TEST".to_string()),
-        //     initial_date: NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
-        //     values: vec![5.0, 5.5, 6.0],
-        // };
-        // assert_eq!(*bond, expected);
+    }
+
+    #[test]
+    fn test_bond_to_csv() {
+        // Create a test bond
+        let bond = Bond {
+            id: BondId("TEST_CSV".to_string()),
+            initial_date: NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
+            values: vec![100.0, 100.5, 101.0, 99.5],
+        };
+
+        let csv_output = bond.to_csv();
+
+        let expected_csv =
+            "date,value\n2024-01-01,100\n2024-01-02,100.5\n2024-01-03,101\n2024-01-04,99.5\n";
+
+        assert_eq!(csv_output, expected_csv);
     }
 }
