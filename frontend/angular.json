@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ObligacjeStarboweWebsite": {
+    "BondsApiWebsite": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -63,10 +63,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "ObligacjeStarboweWebsite:build:production"
+              "buildTarget": "BondsApiWebsite:build:production"
             },
             "development": {
-              "buildTarget": "ObligacjeStarboweWebsite:build:development"
+              "buildTarget": "BondsApiWebsite:build:development"
             }
           },
           "defaultConfiguration": "development"
