@@ -1,0 +1,19 @@
+/// Setup API Server.
+
+pub fn new<I, A, E{{#havingAuthMethods}}, C{{/havingAuthMethods}}>(ctx: &AppContext, api_impl: I) -> Routes
+where
+    I: AsRef<A> + Send + Sync + 'static,
+    A: {{#apiInfo}}{{#apis}}{{#operations}}apis::{{classFilename}}::{{classnamePascalCase}}<E{{#havingAuthMethod}}, Claims = C{{/havingAuthMethod}}> + {{/operations}}{{/apis}}{{/apiInfo}}{{#authMethods}}{{#isApiKey}}{{#isKeyInCookie}}apis::CookieAuthentication<Claims = C> + {{/isKeyInCookie}}{{#isKeyInHeader}}apis::ApiKeyAuthHeader<Claims = C> + {{/isKeyInHeader}}{{/isApiKey}}{{#isBasic}}apis::ApiAuthBasic<Claims = C> + {{/isBasic}}{{/authMethods}}Send + Sync + 'static,
+    E: std::fmt::Debug + Send + Sync + 'static,
+    {{#havingAuthMethods}}C: Send + Sync + 'static,{{/havingAuthMethods}}
+{
+    ctx.shared_store.insert(api_impl);
+
+    // build our application with a route
+    Routes::new()
+        {{#pathMethodOps}}
+        .add("{{{basePathWithoutHost}}}{{{path}}}",
+            {{#methodOperations}}{{{method}}}({{{operationID}}}::<I, A, E{{#vendorExtensions}}{{#havingAuthMethod}}, C{{/havingAuthMethod}}{{/vendorExtensions}}>){{^-last}}.{{/-last}}{{/methodOperations}}
+        )
+        {{/pathMethodOps}}
+}
