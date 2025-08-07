@@ -1,20 +1,23 @@
 use crate::services::bonds::{BondId, BondsService, BondsServiceImpl};
 use anyhow::{Context, Error};
 use async_trait::async_trait;
-use axum::Router;
 use axum::http::Method;
 use axum_extra::extract::{CookieJar, Host};
 use loco_rs::app::AppContext;
-use loco_rs::controller::middleware::cors;
-use loco_rs::prelude::Initializer;
+use loco_rs::controller::Routes;
 use openapi::apis::ErrorHandler;
 use openapi::apis::default::GetBondsResponse::Status200_AJSONArrayOfBondNames;
 use openapi::apis::default::{GetBondCsvResponse, GetBondResponse, GetBondsResponse};
 use openapi::models::{GetBond404Response, GetBondCsvPathParams, GetBondPathParams};
-use std::sync::Arc;
 
 struct ServerImpl {
     bonds_service: Box<dyn BondsService + Send + Sync>,
+}
+
+impl AsRef<ServerImpl> for ServerImpl {
+    fn as_ref(&self) -> &ServerImpl {
+        self
+    }
 }
 
 impl ServerImpl {
@@ -83,65 +86,30 @@ impl openapi::apis::default::Default<Error> for ServerImpl {
     }
 }
 
-impl openapi::apis::ErrorHandler for ServerImpl {}
+impl ErrorHandler for ServerImpl {}
 
-pub(crate) struct OpenApiInitializer;
+pub(crate) fn get_routes(ctx: &AppContext) -> loco_rs::Result<Routes> {
+    let settings = &ctx
+        .config
+        .settings
+        .clone()
+        .context("Setting key in settings not found")
+        .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
 
-impl OpenApiInitializer {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
+    let settings = settings
+        .get("bonds_location")
+        .context("Setting->bonds_location setting not found")
+        .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
 
-#[async_trait]
-impl Initializer for OpenApiInitializer {
-    fn name(&self) -> String {
-        "OpenAPI Initializer".to_string()
-    }
+    let settings = settings
+        .as_str()
+        .context("Setting->bonds_location is not a string")
+        .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
 
-    async fn before_run(&self, _app_context: &AppContext) -> loco_rs::Result<()> {
-        Ok(())
-    }
+    let bonds_service = BondsServiceImpl::new(settings)
+        .context("Failed to create BondsService")
+        .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
 
-    async fn after_routes(&self, router: Router, ctx: &AppContext) -> loco_rs::Result<Router> {
-        let settings = &ctx
-            .config
-            .settings
-            .clone()
-            .context("Setting key in settings not found")
-            .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
-
-        let settings = settings
-            .get("bonds_location")
-            .context("Setting->bonds_location setting not found")
-            .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
-
-        let settings = settings
-            .as_str()
-            .context("Setting->bonds_location is not a string")
-            .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
-
-        let bonds_service = BondsServiceImpl::new(settings)
-            .context("Failed to create BondsService")
-            .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
-
-        let cors = &ctx
-            .config
-            .server
-            .middlewares
-            .cors
-            .clone()
-            .unwrap_or_else(|| cors::Cors {
-                enable: false,
-                ..Default::default()
-            });
-
-        let cors = cors
-            .cors()
-            .context("Cannot create cors layer")
-            .map_err(|e| loco_rs::Error::from(e.into_boxed_dyn_error()))?;
-
-        let app = openapi::server::new(Arc::new(ServerImpl::new(bonds_service))).layer(cors);
-        Ok(router.merge(app))
-    }
+    let app = openapi::server::new(ctx, ServerImpl::new(bonds_service));
+    Ok(app)
 }

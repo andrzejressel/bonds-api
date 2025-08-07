@@ -1,4 +1,4 @@
-use crate::initializers::openapi::OpenApiInitializer;
+use crate::controllers::openapi::get_routes;
 #[allow(unused_imports)]
 use crate::{controllers, tasks};
 use anyhow::Context;
@@ -63,13 +63,12 @@ impl Hooks for App {
                 move |_| openapi.clone(),
                 None,
             )),
-            Box::new(OpenApiInitializer::new()),
             Box::new(OtelInitializer::new()),
         ])
     }
 
-    fn routes(_ctx: &AppContext) -> AppRoutes {
-        AppRoutes::with_default_routes()
+    fn routes(ctx: &AppContext) -> AppRoutes {
+        AppRoutes::with_default_routes().add_route(get_routes(ctx).expect("Failed to get routes"))
     }
 
     async fn connect_workers(_ctx: &AppContext, _queue: &Queue) -> Result<()> {

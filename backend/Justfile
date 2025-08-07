@@ -10,7 +10,13 @@ watch-test:
     watchexec -r -- cargo test
 
 gen-api:
-    npx --yes @openapitools/openapi-generator-cli@2.21.4 generate -g rust-axum -i .\openapi.yaml --enable-post-process-file -o crates/api --additional-properties generateAliasAsModel=true,allowBlockingValidator=true,allowBlockingResponseSerialize=true
+    npx --yes @openapitools/openapi-generator-cli@2.21.4 generate \
+        -g rust-axum \
+        -i .\openapi.yaml \
+        --enable-post-process-file \
+        -o crates/api \
+        -t openapi_generator/templates/loco-rs \
+        --additional-properties generateAliasAsModel=true,allowBlockingValidator=true,allowBlockingResponseSerialize=true,hideGenerationTimestamp=true
 
 lgtm:
     docker run -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -ti grafana/otel-lgtm:0.11.6

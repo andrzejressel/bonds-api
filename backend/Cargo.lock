@@ -2309,6 +2309,7 @@ dependencies = [
  "frunk_derives",
  "http",
  "lazy_static",
+ "loco-rs",
  "regex",
  "serde",
  "serde_html_form",
