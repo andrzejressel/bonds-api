@@ -25,7 +25,7 @@ async fn {{#vendorExtensions}}{{{x-operation-id}}}{{/vendorExtensions}}<I, A, E{
 {{#queryParams.size}}
   QueryExtra(query_params): QueryExtra<models::{{{operationIdCamelCase}}}QueryParams>,
 {{/queryParams.size}}
- State(api_impl): State<AppContext>,
+ State(app_context): State<AppContext>,
 {{#vendorExtensions}}
 {{^x-consumes-multipart-related}}
 {{^x-consumes-multipart}}
@@ -62,8 +62,8 @@ where
     A: apis::{{classFilename}}::{{classnamePascalCase}}<E{{#havingAuthMethod}}, Claims = C{{/havingAuthMethod}}>{{#vendorExtensions}}{{#x-has-cookie-auth-methods}}+ apis::CookieAuthentication<Claims = C>{{/x-has-cookie-auth-methods}}{{#x-has-header-auth-methods}}+ apis::ApiKeyAuthHeader<Claims = C>{{/x-has-header-auth-methods}}{{#x-has-basic-auth-methods}}+ apis::ApiAuthBasic<Claims = C>{{/x-has-basic-auth-methods}}{{/vendorExtensions}} + Send + Sync,
     E: std::fmt::Debug + Send + Sync + 'static,
         {
-let shared_storage = api_impl.shared_store.clone();
-let api_impl = shared_storage.get_ref::<I>().unwrap();
+// SAFETY - We know that I is in shared store, because the only way to get here is through the `new` function which inserts it into the shared store.
+let api_impl = unsafe { app_context.shared_store.get_ref::<I>().unwrap_unchecked() };
 {{#vendorExtensions}}
 {{#x-has-auth-methods}}
     // Authentication

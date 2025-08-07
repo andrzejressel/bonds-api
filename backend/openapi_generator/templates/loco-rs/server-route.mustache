@@ -1,5 +1,4 @@
 /// Setup API Server.
-
 pub fn new<I, A, E{{#havingAuthMethods}}, C{{/havingAuthMethods}}>(ctx: &AppContext, api_impl: I) -> Routes
 where
     I: AsRef<A> + Send + Sync + 'static,
@@ -17,3 +16,5 @@ where
         )
         {{/pathMethodOps}}
 }
+    
+    
