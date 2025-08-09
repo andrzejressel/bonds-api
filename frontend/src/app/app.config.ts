@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 // @ts-ignore
-import Plotly from 'plotly.js-dist'
+import Plotly from 'plotly.js-finance-dist-min'
 import { provideAnimations } from '@angular/platform-browser/animations';
 import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 
