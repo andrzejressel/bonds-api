@@ -4,7 +4,7 @@ import {BondDataService} from './services/bond-data.service';
 import {of} from 'rxjs';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 // @ts-ignore
-import Plotly from 'plotly.js-dist';
+import Plotly from 'plotly.js-finance-dist-min';
 import {PlotlyModule} from 'angular-plotly.js';
 
 describe('App', () => {
