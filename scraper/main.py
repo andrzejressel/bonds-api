@@ -1,9 +1,10 @@
+import calendar
 import json
 import os
+from datetime import date
 from multiprocessing import cpu_count, Pool
 from typing import Dict, List, Tuple
 
-import more_itertools
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -63,10 +64,6 @@ def extract_emission_numbers_and_data_values(url):
         value_attr = div.attrs["value"]
         value_attr = value_attr.split(",")
         code_id_to_name[value_attr[0]] = div.text.strip()
-        # code = div.text.strip()
-        # if code.startswith("EDO"):
-        #     print(div.prettify())
-        # print(code)
 
     divs = soup.select("select#id_interest_table_bonds > option")
 
@@ -144,14 +141,23 @@ def generate_bond_csv(bond_number: str, files) -> str:
         )
         df_long.dropna(subset=['Date', 'Value'], inplace=True)
         df_long.sort_values('Date', inplace=True)
-        print(df)
-        print(df_long)
         df_final_csv = df_long[['Date', 'Value']]
-        first_date = df_final_csv['Date'].min().strftime('%Y-%m-%d')
+        first_date: date = df_final_csv['Date'].min()
+        first_date_str = first_date.strftime('%Y-%m-%d')
+        last_day = calendar.monthrange(first_date.year, first_date.month)[1]
+        sale_end = date(first_date.year, first_date.month, last_day)
+        sale_end_str = sale_end.strftime('%Y-%m-%d')
         values = df_final_csv['Value'].tolist()
-        result_json = {"first_date": first_date, "values": values}
+        if bond_number.startswith("EDO"):
+            buyout_month = first_date.month
+            buyout_year = first_date.year + 10
+            buyout_day = 1
+            buyout_date_str = date(buyout_year, buyout_month, buyout_day).strftime('%Y-%m-%d')
+        else:
+            raise Exception(f"Nieobsługiwany numer obligacji: {bond_number}")
+        result_json = {"first_date": first_date_str, "sale_end": sale_end_str, "buyout_date": buyout_date_str, "values": values}
         with open(file_location, "w") as f:
-            json.dump(result_json, f)
+            json.dump(result_json, f, indent=2)
         return file_location
         # print(result_json)
         # print(df_final_csv)
@@ -175,5 +181,10 @@ if __name__ == "__main__":
 
     print(f"Wyciąganie numerów emisji i data-value z: {target_url}")
     print("Proszę czekać...\n")
+
+    if not os.path.exists("tmp"):
+        os.mkdir("tmp")
+    if not os.path.exists("output"):
+        os.mkdir("output")
 
     extract_emission_numbers_and_data_values(target_url)

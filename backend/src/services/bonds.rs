@@ -20,16 +20,28 @@ impl BondId {
 pub(crate) struct BondData {
     first_date: NaiveDate,
     values: Vec<f64>,
+    sale_end: NaiveDate,
+    buyout_date: NaiveDate,
 }
 
 #[derive(Clone, Debug, PartialOrd, PartialEq)]
 pub(crate) struct Bond {
-    id: BondId,
+    pub(crate) id: BondId,
     initial_date: NaiveDate,
     values: Vec<f64>,
+    sale_end: NaiveDate,
+    buyout_date: NaiveDate,
 }
 
 impl Bond {
+    pub(crate) fn initial_date(&self) -> NaiveDate {
+        self.initial_date
+    }
+
+    pub(crate) fn sale_end(&self) -> NaiveDate {
+        self.sale_end
+    }
+
     fn from_file_data(filename: &str, data: BondData) -> Result<Self> {
         let bond_id = filename
             .strip_suffix(".json")
@@ -40,6 +52,8 @@ impl Bond {
             id: BondId(bond_id),
             initial_date: data.first_date,
             values: data.values,
+            sale_end: data.sale_end,
+            buyout_date: data.buyout_date,
         })
     }
 
@@ -56,7 +70,7 @@ impl Bond {
 }
 
 /// Reads all JSON files from the specified directory and deserializes them into Bond structs
-fn load_bonds_from_directory<P: AsRef<Path>>(directory: P) -> Result<Vec<Bond>> {
+pub fn load_bonds_from_directory<P: AsRef<Path>>(directory: P) -> Result<Vec<Bond>> {
     let dir_path = fs::canonicalize(directory.as_ref()).with_context(|| {
         format!(
             "Failed to canonicalize path: {}",
@@ -153,12 +167,16 @@ mod tests {
         // Create test JSON files
         let test_json1 = r#"{
             "first_date": "2022-03-01",
-            "values": [0.0, 0.01, 0.02, 0.03]
+            "values": [0.0, 0.01, 0.02, 0.03],
+            "sale_end": "2022-12-31",
+            "buyout_date": "2023-01-15"
         }"#;
 
         let test_json2 = r#"{
             "first_date": "2023-01-15",
-            "values": [1.0, 1.5, 2.0]
+            "values": [1.0, 1.5, 2.0],
+            "sale_end": "2023-12-31",
+            "buyout_date": "2024-01-15"
         }"#;
 
         // Write test files
@@ -173,34 +191,28 @@ mod tests {
         txt_file.write_all(b"This should be ignored").unwrap();
 
         // Test the function
-        let bonds = load_bonds_from_directory(temp_path).expect("Failed to load bonds");
+        let mut bonds = load_bonds_from_directory(temp_path).expect("Failed to load bonds");
+        bonds.sort_by(|a, b| a.id.cmp(&b.id));
 
         // Verify results
-        assert_eq!(bonds.len(), 2);
+        let expected_bonds = vec![
+            Bond {
+                id: BondId::new("EDO0332"),
+                initial_date: NaiveDate::from_ymd_opt(2022, 3, 1).unwrap(),
+                values: vec![0.0, 0.01, 0.02, 0.03],
+                sale_end: NaiveDate::from_ymd_opt(2022, 12, 31).unwrap(),
+                buyout_date: NaiveDate::from_ymd_opt(2023, 1, 15).unwrap(),
+            },
+            Bond {
+                id: BondId::new("TEST123"),
+                initial_date: NaiveDate::from_ymd_opt(2023, 1, 15).unwrap(),
+                values: vec![1.0, 1.5, 2.0],
+                sale_end: NaiveDate::from_ymd_opt(2023, 12, 31).unwrap(),
+                buyout_date: NaiveDate::from_ymd_opt(2024, 1, 15).unwrap(),
+            },
+        ];
 
-        // Find bonds by ID
-        let edo_bond = bonds
-            .iter()
-            .find(|b| matches!(&b.id, BondId(id) if id == "EDO0332"))
-            .unwrap();
-        let test_bond = bonds
-            .iter()
-            .find(|b| matches!(&b.id, BondId(id) if id == "TEST123"))
-            .unwrap();
-
-        // Verify EDO0332 bond
-        assert_eq!(
-            edo_bond.initial_date,
-            NaiveDate::from_ymd_opt(2022, 3, 1).unwrap()
-        );
-        assert_eq!(edo_bond.values, vec![0.0, 0.01, 0.02, 0.03]);
-
-        // Verify TEST123 bond
-        assert_eq!(
-            test_bond.initial_date,
-            NaiveDate::from_ymd_opt(2023, 1, 15).unwrap()
-        );
-        assert_eq!(test_bond.values, vec![1.0, 1.5, 2.0]);
+        assert_eq!(bonds, expected_bonds);
     }
 
     #[test]
@@ -211,7 +223,9 @@ mod tests {
 
         let test_json = r#"{
             "first_date": "2024-01-01",
-            "values": [5.0, 5.5, 6.0]
+            "values": [5.0, 5.5, 6.0],
+            "sale_end": "2024-12-31",
+            "buyout_date": "2025-01-15"
         }"#;
 
         let mut file = fs::File::create(temp_path.join("SERVICE_TEST.json")).unwrap();
@@ -231,6 +245,8 @@ mod tests {
             id: BondId("TEST_CSV".to_string()),
             initial_date: NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
             values: vec![100.0, 100.5, 101.0, 99.5],
+            sale_end: NaiveDate::from_ymd_opt(2024, 12, 31).unwrap(),
+            buyout_date: NaiveDate::from_ymd_opt(2025, 1, 15).unwrap(),
         };
 
         let csv_output = bond.to_csv();
