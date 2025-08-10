@@ -1,0 +1,12 @@
+[package]
+name = "bonds-reader"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+calamine.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+insta.workspace = true

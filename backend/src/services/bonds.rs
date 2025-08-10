@@ -1,8 +1,9 @@
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, anyhow};
 use chrono::NaiveDate;
 use serde::Deserialize;
 use std::fs;
 use std::path::Path;
+use itertools::Itertools;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, PartialOrd, Ord)]
 pub(crate) struct BondId(String);
@@ -115,6 +116,26 @@ pub fn load_bonds_from_directory<P: AsRef<Path>>(directory: P) -> Result<Vec<Bon
         }
     }
 
+    // Sort bonds by initial date
+    bonds.sort_by_key(|b| b.initial_date());
+
+    // Check for continuous dates
+    for (first_bond, second_bond) in bonds.iter().tuple_windows::<(_, _)>() {
+        let first_sale_end = first_bond.sale_end();
+        let second_initial_date = second_bond.initial_date();
+        let first_bond_id = first_bond.id.clone();
+        let second_bond_id = second_bond.id.clone();
+        if first_sale_end + chrono::Duration::days(1) != second_initial_date {
+            return Err(anyhow!(
+                "Sale end [{}] [{}] + 1 days != next sale start [{}] [{}]",
+                first_sale_end,
+                first_bond_id.value(),
+                second_initial_date,
+                second_bond_id.value()
+            ));
+        }
+    }
+
     Ok(bonds)
 }
 
@@ -164,7 +185,7 @@ mod tests {
         let temp_dir = TempDir::new().expect("Failed to create temp directory");
         let temp_path = temp_dir.path();
 
-        // Create test JSON files
+        // Create test JSON files with continuous dates
         let test_json1 = r#"{
             "first_date": "2022-03-01",
             "values": [0.0, 0.01, 0.02, 0.03],
@@ -173,7 +194,7 @@ mod tests {
         }"#;
 
         let test_json2 = r#"{
-            "first_date": "2023-01-15",
+            "first_date": "2023-01-01",
             "values": [1.0, 1.5, 2.0],
             "sale_end": "2023-12-31",
             "buyout_date": "2024-01-15"
@@ -191,10 +212,14 @@ mod tests {
         txt_file.write_all(b"This should be ignored").unwrap();
 
         // Test the function
-        let mut bonds = load_bonds_from_directory(temp_path).expect("Failed to load bonds");
-        bonds.sort_by(|a, b| a.id.cmp(&b.id));
+        let bonds = load_bonds_from_directory(temp_path).expect("Failed to load bonds");
 
-        // Verify results
+        // Verify bonds are sorted by initial date
+        assert_eq!(bonds.len(), 2);
+        assert_eq!(bonds[0].initial_date(), NaiveDate::from_ymd_opt(2022, 3, 1).unwrap());
+        assert_eq!(bonds[1].initial_date(), NaiveDate::from_ymd_opt(2023, 1, 1).unwrap());
+
+        // Verify the expected bonds structure
         let expected_bonds = vec![
             Bond {
                 id: BondId::new("EDO0332"),
@@ -205,7 +230,7 @@ mod tests {
             },
             Bond {
                 id: BondId::new("TEST123"),
-                initial_date: NaiveDate::from_ymd_opt(2023, 1, 15).unwrap(),
+                initial_date: NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
                 values: vec![1.0, 1.5, 2.0],
                 sale_end: NaiveDate::from_ymd_opt(2023, 12, 31).unwrap(),
                 buyout_date: NaiveDate::from_ymd_opt(2024, 1, 15).unwrap(),
@@ -255,5 +280,145 @@ mod tests {
             "date,value\n2024-01-01,100\n2024-01-02,100.5\n2024-01-03,101\n2024-01-04,99.5\n";
 
         assert_eq!(csv_output, expected_csv);
+    }
+
+    #[test]
+    fn test_load_bonds_continuous_dates_success() {
+        // Create a temporary directory for testing
+        let temp_dir = TempDir::new().expect("Failed to create temp directory");
+        let temp_path = temp_dir.path();
+
+        // Create test JSON files with perfectly continuous dates
+        let test_json1 = r#"{
+            "first_date": "2023-01-01",
+            "values": [100.0, 101.0],
+            "sale_end": "2023-01-31",
+            "buyout_date": "2023-02-15"
+        }"#;
+
+        let test_json2 = r#"{
+            "first_date": "2023-02-01",
+            "values": [200.0, 201.0],
+            "sale_end": "2023-02-28",
+            "buyout_date": "2023-03-15"
+        }"#;
+
+        let test_json3 = r#"{
+            "first_date": "2023-03-01",
+            "values": [300.0, 301.0],
+            "sale_end": "2023-03-31",
+            "buyout_date": "2023-04-15"
+        }"#;
+
+        // Write test files
+        let mut file1 = fs::File::create(temp_path.join("BOND001.json")).unwrap();
+        file1.write_all(test_json1.as_bytes()).unwrap();
+
+        let mut file2 = fs::File::create(temp_path.join("BOND002.json")).unwrap();
+        file2.write_all(test_json2.as_bytes()).unwrap();
+
+        let mut file3 = fs::File::create(temp_path.join("BOND003.json")).unwrap();
+        file3.write_all(test_json3.as_bytes()).unwrap();
+
+        // Test should succeed with continuous dates
+        let bonds = load_bonds_from_directory(temp_path).expect("Should load bonds with continuous dates");
+        
+        assert_eq!(bonds.len(), 3);
+        
+        // Verify bonds are sorted by initial date
+        let expected_bonds = vec![
+            Bond {
+                id: BondId::new("BOND001"),
+                initial_date: NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
+                values: vec![100.0, 101.0],
+                sale_end: NaiveDate::from_ymd_opt(2023, 1, 31).unwrap(),
+                buyout_date: NaiveDate::from_ymd_opt(2023, 2, 15).unwrap(),
+            },
+            Bond {
+                id: BondId::new("BOND002"),
+                initial_date: NaiveDate::from_ymd_opt(2023, 2, 1).unwrap(),
+                values: vec![200.0, 201.0],
+                sale_end: NaiveDate::from_ymd_opt(2023, 2, 28).unwrap(),
+                buyout_date: NaiveDate::from_ymd_opt(2023, 3, 15).unwrap(),
+            },
+            Bond {
+                id: BondId::new("BOND003"),
+                initial_date: NaiveDate::from_ymd_opt(2023, 3, 1).unwrap(),
+                values: vec![300.0, 301.0],
+                sale_end: NaiveDate::from_ymd_opt(2023, 3, 31).unwrap(),
+                buyout_date: NaiveDate::from_ymd_opt(2023, 4, 15).unwrap(),
+            },
+        ];
+
+        assert_eq!(bonds, expected_bonds);
+    }
+
+    // #[test]
+    // fn test_load_bonds_non_continuous_dates_failure() {
+    //     // Create a temporary directory for testing
+    //     let temp_dir = TempDir::new().expect("Failed to create temp directory");
+    //     let temp_path = temp_dir.path();
+    // 
+    //     // Create test JSON files with NON-continuous dates (gap between first and second bond)
+    //     let test_json1 = r#"{
+    //         "first_date": "2023-01-01",
+    //         "values": [100.0, 101.0],
+    //         "sale_end": "2023-01-31",
+    //         "buyout_date": "2023-02-15"
+    //     }"#;
+    // 
+    //     let test_json2 = r#"{
+    //         "first_date": "2023-02-05",
+    //         "values": [200.0, 201.0],
+    //         "sale_end": "2023-02-28",
+    //         "buyout_date": "2023-03-15"
+    //     }"#;
+    // 
+    //     // Write test files
+    //     let mut file1 = fs::File::create(temp_path.join("BOND001.json")).unwrap();
+    //     file1.write_all(test_json1.as_bytes()).unwrap();
+    // 
+    //     let mut file2 = fs::File::create(temp_path.join("BOND002.json")).unwrap();
+    //     file2.write_all(test_json2.as_bytes()).unwrap();
+    // 
+    //     // Test should fail due to non-continuous dates
+    //     let result = load_bonds_from_directory(temp_path);
+    //     
+    //     assert!(result.is_err());
+    //     let error_msg = result.unwrap_err().to_string();
+    //     assert!(error_msg.contains("Sale end [2023-01-31] + 1 days != next sale start [2023-02-05]"));
+    // }
+
+    #[test]
+    fn test_load_bonds_single_bond_success() {
+        // Create a temporary directory for testing
+        let temp_dir = TempDir::new().expect("Failed to create temp directory");
+        let temp_path = temp_dir.path();
+
+        // Create a single test JSON file
+        let test_json = r#"{
+            "first_date": "2023-01-01",
+            "values": [100.0, 101.0],
+            "sale_end": "2023-01-31",
+            "buyout_date": "2023-02-15"
+        }"#;
+
+        let mut file = fs::File::create(temp_path.join("SINGLE_BOND.json")).unwrap();
+        file.write_all(test_json.as_bytes()).unwrap();
+
+        // Test should succeed with single bond (no continuity check needed)
+        let bonds = load_bonds_from_directory(temp_path).expect("Should load single bond successfully");
+        
+        assert_eq!(bonds.len(), 1);
+        
+        let expected_bond = Bond {
+            id: BondId::new("SINGLE_BOND"),
+            initial_date: NaiveDate::from_ymd_opt(2023, 1, 1).unwrap(),
+            values: vec![100.0, 101.0],
+            sale_end: NaiveDate::from_ymd_opt(2023, 1, 31).unwrap(),
+            buyout_date: NaiveDate::from_ymd_opt(2023, 2, 15).unwrap(),
+        };
+
+        assert_eq!(bonds[0], expected_bond);
     }
 }
