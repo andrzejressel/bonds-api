@@ -1,8 +1,7 @@
-use crate::services::bonds::{Bond, BondId, BondsService, load_bonds_from_directory};
+use crate::services::bonds::{Bond, BondId, load_bonds_from_directory};
 use anyhow::{Context, anyhow};
-use chrono::{Datelike, NaiveDate};
+use chrono::NaiveDate;
 use loco_rs::prelude::*;
-use std::ops::Add;
 use std::path::Path;
 
 trait BondsDatastore {

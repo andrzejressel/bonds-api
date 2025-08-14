@@ -37,13 +37,10 @@ jobs:
       run: rustup component add rustfmt
 
     - name: Check formatting
-      run: cargo fmt --all -- --check
+      run: just check
 
     - name: Run clippy
       run: just clippy
 
-    - name: Build
-      run: cargo build
-
     - name: Run tests
-      run: cargo test
+      run: just test
