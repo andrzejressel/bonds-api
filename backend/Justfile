@@ -38,6 +38,9 @@ fix:
     cargo clippy --all-targets --all-features --fix --allow-dirty --allow-staged
 
 test:
+    cargo test --all-features --workspace
+
+test-coverage:
     cargo llvm-cov test --all-features --workspace --cobertura --output-path cobertura.xml
     
 accept-snapshots $INSTA_UPDATE="always":
