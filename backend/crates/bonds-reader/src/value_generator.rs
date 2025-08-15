@@ -49,7 +49,7 @@ impl ValueGenerator {
                 values.push(today_value);
             }
 
-            current_value = values.last().unwrap().clone();
+            current_value = *values.last().unwrap();
         }
 
         values

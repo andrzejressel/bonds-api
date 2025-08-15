@@ -36,7 +36,7 @@ fn extract_bond_type(
     let mut bonds = HashMap::new();
 
     for (row_id, row) in range.rows().enumerate() {
-        let first_cell = row.get(0);
+        let first_cell = row.first();
         if let Some(cell) = first_cell
             && let String(value) = cell
             && value.starts_with(bond_type)
@@ -61,10 +61,10 @@ fn extract_bond_type(
                 )
             };
 
-            let bond_id = if let Some(String(bond_id)) = row.get(0) {
+            let bond_id = if let Some(String(bond_id)) = row.first() {
                 BondId::new(bond_id.as_str())
             } else {
-                bail!("Cannot extract bond ID from cell [{:?}]", row.get(0))
+                bail!("Cannot extract bond ID from cell [{:?}]", row.first())
             };
 
             let buyout_date = sale_start
