@@ -55,7 +55,7 @@ fn extract_bond_type(
                 date_time
             } else {
                 bail!(
-                    "Cannot extract date from cell [{:?}], row id: [{}], column: 3",
+                    "Cannot extract date from cell [{:?}], row id: [{}], column: 4",
                     row.get(4),
                     row_id
                 )
