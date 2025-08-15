@@ -31,7 +31,7 @@ fn extract_bond_type(
 ) -> Result<HashMap<BondId, Bond>, Error> {
     let range = workbook
         .worksheet_range(bond_type)
-        .context("Failed to get worksheet [ROD]")?;
+        .context(format!("Failed to get worksheet [{}]", bond_type))?;
 
     let mut bonds = HashMap::new();
 
@@ -55,7 +55,7 @@ fn extract_bond_type(
                 date_time
             } else {
                 bail!(
-                    "Cannot extract date from cell [{:?}], row id: [{}], column: 3",
+                    "Cannot extract date from cell [{:?}], row id: [{}], column: 4",
                     row.get(4),
                     row_id
                 )
