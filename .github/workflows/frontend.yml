@@ -36,11 +36,11 @@ jobs:
       run: npm ci
 
     - name: Run tests
-      run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadless --code-coverage
+      run: npm run test-coverage
 
     - name: Upload coverage reports
       if: matrix.node-version == '22.x'
       uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
       with:
-        directory: ./frontend/coverage
+        directory: ./frontend/coverage/bonds-api-website
         fail_ci_if_error: true
