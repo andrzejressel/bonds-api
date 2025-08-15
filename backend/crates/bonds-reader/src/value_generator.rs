@@ -1,4 +1,6 @@
 use chrono::{Datelike, NaiveDate};
+use rust_decimal::Decimal;
+use rust_decimal::prelude::ToPrimitive;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct BondValue {
@@ -47,7 +49,6 @@ impl ValueGenerator {
                 values.push(today_value);
             }
 
-            // println!("Last value for year {}: {}", i + 1, values.last().unwrap());
             current_value = values.last().unwrap().clone();
         }
 
@@ -55,7 +56,7 @@ impl ValueGenerator {
     }
 
     fn two_decimal_places(value: f64) -> f64 {
-        (value * 100.0).round() / 100.0
+        Decimal::from_f64_retain(value).unwrap().round_dp(2).to_f64().unwrap()
     }
 }
 
@@ -76,5 +77,47 @@ mod tests {
 
         assert_debug_snapshot!(values[..=366]);
         assert_debug_snapshot!(values[367..]);
+    }
+    
+    #[test]
+    fn test_daily_bond_value_calculation_like_edo1224() {
+        let mut generator = ValueGenerator::new(100.0);
+        generator.add_yearly_return(0.03);
+        generator.add_yearly_return(0.015);
+        generator.add_yearly_return(0.015);
+        generator.add_yearly_return(0.036);
+        generator.add_yearly_return(0.033);
+        generator.add_yearly_return(0.04);
+        generator.add_yearly_return(0.046);
+        generator.add_yearly_return(0.083);
+        generator.add_yearly_return(0.194);
+        generator.add_yearly_return(0.081);
+            
+
+        let start_date = NaiveDate::from_ymd_opt(2014, 12, 1).unwrap();
+        let values = generator.calculate_daily_bond_values(start_date);
+
+        assert_debug_snapshot!(values);
+    }
+    
+    #[test]
+    fn test_daily_bond_value_calculation_like_edo0125() {
+        let mut generator = ValueGenerator::new(100.0);
+
+        generator.add_yearly_return(0.03);
+        generator.add_yearly_return(0.015);
+        generator.add_yearly_return(0.015);
+        generator.add_yearly_return(0.04);
+        generator.add_yearly_return(0.028);
+        generator.add_yearly_return(0.041);
+        generator.add_yearly_return(0.045);
+        generator.add_yearly_return(0.093);
+        generator.add_yearly_return(0.19);
+        generator.add_yearly_return(0.081);
+
+        let start_date = NaiveDate::from_ymd_opt(2015, 1, 1).unwrap();
+        let values = generator.calculate_daily_bond_values(start_date);
+
+        assert_debug_snapshot!(values);
     }
 }

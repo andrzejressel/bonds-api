@@ -10,6 +10,8 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+use rust_decimal::Decimal;
+use rust_decimal::prelude::ToPrimitive;
 
 pub fn read_bonds<P: AsRef<Path>>(path: P) -> Result<AllBonds> {
     let mut workbook: Xls<_> =
@@ -73,7 +75,8 @@ fn extract_bond_type(workbook: &mut Xls<BufReader<File>>, bond_type: &str, bond_
                 if let Some(cell) = row.get(i as usize)
                     && let Float(value) = cell
                 {
-                    generator.add_yearly_return(*value)
+                    let d = Decimal::from_f64_retain(*value).unwrap().round_sf(5).unwrap();
+                    generator.add_yearly_return(d.to_f64().unwrap())
                 }
             }
 
@@ -121,5 +124,17 @@ mod tests {
             .expect("Should find edo1224 bond");
 
         assert_debug_snapshot!(edo1224bond);
+    }
+    
+    #[test]
+    fn test_read_edo0125bind() {
+        let path = "../../assets/Dane_dotyczace_obligacji_detalicznych.xls";
+        let result = read_bonds(path).expect("Should read bonds");
+        let edo0125bond_id = BondId::new("EDO0125");
+        let edo0125bond = result
+            .edo
+            .get(&edo0125bond_id)
+            .expect("Should find edo0125 bond");
+        assert_debug_snapshot!(edo0125bond);
     }
 }
