@@ -1,5 +1,13 @@
 set windows-shell := ["pwsh.exe", "-c"]
 
+# renovate: datasource=crate depName=cargo-llvm-cov packageName=cargo-llvm-cov
+CARGO_LLVM_COV_VERSION := "0.6.13"
+
+install-requirements:
+    rustup component add rustfmt
+    rustup component add llvm-tools-preview
+    cargo binstall --no-confirm cargo-llvm-cov@{{CARGO_LLVM_COV_VERSION}}
+
 watch:
     watchexec -r -- cargo loco start
 
@@ -30,7 +38,7 @@ fix:
     cargo clippy --all-targets --all-features --fix --allow-dirty --allow-staged
 
 test:
-    cargo test --all-features --workspace
+    cargo llvm-cov test --all-features --workspace --cobertura --output-path covertura.xml 
     
 accept-snapshots $INSTA_UPDATE="always":
     cargo test --all-features --workspace

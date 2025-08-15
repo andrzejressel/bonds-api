@@ -33,11 +33,17 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Install rustfmt
-      run: rustup component add rustfmt
+    - name: Install requirements
+      run: just install-requirements
 
     - name: Check formatting
       run: just check
 
     - name: Run tests
       run: just test
+
+    - name: Upload coverage data to codecov
+      uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+      with:
+        files: covertura.xml
+        fail_ci_if_error: true
