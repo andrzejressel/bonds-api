@@ -19,4 +19,4 @@ target/
 *.sqlite
 *.sqlite-*
 
-covertura.xml 
+cobertura.xml 
