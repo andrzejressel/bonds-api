@@ -8,6 +8,7 @@ calamine.workspace = true
 anyhow.workspace = true
 chrono.workspace = true
 model.workspace = true
+rust_decimal.workspace = true
 
 [dev-dependencies]
 insta.workspace = true

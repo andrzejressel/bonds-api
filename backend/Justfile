@@ -31,3 +31,6 @@ fix:
 
 test:
     cargo test --all-features --workspace
+    
+accept-snapshots $INSTA_UPDATE="always":
+    cargo test --all-features --workspace

@@ -39,14 +39,6 @@ impl ValueGenerator {
 
             let days_in_year = (end_date - start_date).num_days();
 
-            // println!(
-            //     "Calculating values for year {}: {} to {}",
-            //     i + 1,
-            //     start_date,
-            //     end_date
-            // );
-            // println!("Number of days in year: {}", days_in_year);
-
             for day in 1..=days_in_year {
                 let additional_value =
                     current_value * (day as f64 / days_in_year as f64) * (annual_return_rate);

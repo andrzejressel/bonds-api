@@ -1,20 +1,34 @@
 mod value_generator;
+mod price;
 
-use anyhow::{Context, Result, anyhow, bail};
-use calamine::Data::{DateTime, DateTimeIso, Float, String};
-use calamine::{DataType, ExcelDateTime, Reader, Xls};
-use chrono::{Datelike, TimeDelta};
-use model::{Bond, BondId};
+use anyhow::{Context, Result, bail, Error};
+use calamine::Data::{Float, String};
+use calamine::{DataType, Reader, Xls};
+use chrono::Datelike;
+use model::{AllBonds, Bond, BondId};
 use std::collections::HashMap;
-use std::ops::Add;
+use std::fs::File;
+use std::io::BufReader;
 use std::path::Path;
 
-pub fn read_bonds<P: AsRef<Path>>(path: P) -> Result<HashMap<BondId, Bond>> {
+pub fn read_bonds<P: AsRef<Path>>(path: P) -> Result<AllBonds> {
     let mut workbook: Xls<_> =
         calamine::open_workbook(path.as_ref()).context("Failed to open workbook")?;
 
+    let edo = extract_bond_type(&mut workbook, "EDO", 10)?;
+    let rod = extract_bond_type(&mut workbook, "ROD", 12)?;
+    
+    let all_bonds = AllBonds {
+        edo,
+        rod,
+    };
+    
+    Ok(all_bonds)
+}
+
+fn extract_bond_type(workbook: &mut Xls<BufReader<File>>, bond_type: &str, bond_length_in_years: u8) -> Result<HashMap<BondId, Bond>, Error> {
     let range = workbook
-        .worksheet_range("ROD")
+        .worksheet_range(bond_type)
         .context("Failed to get worksheet [ROD]")?;
 
     let mut bonds = HashMap::new();
@@ -23,7 +37,7 @@ pub fn read_bonds<P: AsRef<Path>>(path: P) -> Result<HashMap<BondId, Bond>> {
         let first_cell = row.get(0);
         if let Some(cell) = first_cell
             && let String(value) = cell
-            && value.starts_with("ROD")
+            && value.starts_with(bond_type)
         {
             let sale_start = if let Some(date_time) = row.get(3).and_then(|f| f.as_datetime()) {
                 date_time
@@ -51,12 +65,12 @@ pub fn read_bonds<P: AsRef<Path>>(path: P) -> Result<HashMap<BondId, Bond>> {
                 bail!("Cannot extract bond ID from cell [{:?}]", row.get(0))
             };
 
-            let buyout_date = sale_start.with_year(sale_start.year() + 12).unwrap();
+            let buyout_date = sale_start.with_year(sale_start.year() + bond_length_in_years as i32).unwrap();
 
             let mut generator = value_generator::ValueGenerator::new(100f64);
 
-            for i in (9..=20) {
-                if let Some(cell) = row.get(i)
+            for i in 9..(9 + bond_length_in_years) {
+                if let Some(cell) = row.get(i as usize)
                     && let Float(value) = cell
                 {
                     generator.add_yearly_return(*value)
@@ -74,14 +88,12 @@ pub fn read_bonds<P: AsRef<Path>>(path: P) -> Result<HashMap<BondId, Bond>> {
             bonds.insert(bond_id, bond);
         }
     }
-
     Ok(bonds)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::NaiveDate;
     use insta::assert_debug_snapshot;
 
     #[test]
@@ -90,9 +102,24 @@ mod tests {
         let result = read_bonds(path).expect("Should read bondss");
         let rod1235bond_id = BondId::new("ROD1235");
         let rod1235bond = result
+            .rod
             .get(&rod1235bond_id)
             .expect("Should find ROD1235 bond");
 
         assert_debug_snapshot!(rod1235bond);
+    }
+    
+    // FIXME: It's wrong by 1 grosz at the end. Due to float rounding issues in excel
+    #[test]
+    fn test_read_edo1224bond() {
+        let path = "../../assets/Dane_dotyczace_obligacji_detalicznych.xls";
+        let result = read_bonds(path).expect("Should read bonds");
+        let edo1224bond_id = BondId::new("EDO1224");
+        let edo1224bond = result
+            .edo
+            .get(&edo1224bond_id)
+            .expect("Should find edo1224 bond");
+
+        assert_debug_snapshot!(edo1224bond);
     }
 }

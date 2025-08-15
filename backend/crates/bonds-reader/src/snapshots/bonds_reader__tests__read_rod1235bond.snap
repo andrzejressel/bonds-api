@@ -1,6 +1,5 @@
 ---
 source: crates/bonds-reader/src/lib.rs
-assertion_line: 96
 expression: rod1235bond
 ---
 Bond {

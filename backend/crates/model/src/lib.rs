@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use chrono::NaiveDate;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, PartialOrd, Ord)]
@@ -19,4 +20,9 @@ pub struct Bond {
     pub sale_end: NaiveDate,
     pub buyout_date: NaiveDate,
     pub values: Vec<f64>,
+}
+
+pub struct AllBonds {
+    pub edo: HashMap<BondId, Bond>,
+    pub rod: HashMap<BondId, Bond>,
 }
