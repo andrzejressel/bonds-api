@@ -31,12 +31,12 @@ fn extract_bond_type(
 ) -> Result<HashMap<BondId, Bond>, Error> {
     let range = workbook
         .worksheet_range(bond_type)
-        .context("Failed to get worksheet [ROD]")?;
+        .context(format!("Failed to get worksheet [{}]", bond_type))?;
 
     let mut bonds = HashMap::new();
 
     for (row_id, row) in range.rows().enumerate() {
-        let first_cell = row.get(0);
+        let first_cell = row.first();
         if let Some(cell) = first_cell
             && let String(value) = cell
             && value.starts_with(bond_type)
@@ -55,16 +55,16 @@ fn extract_bond_type(
                 date_time
             } else {
                 bail!(
-                    "Cannot extract date from cell [{:?}], row id: [{}], column: 3",
+                    "Cannot extract date from cell [{:?}], row id: [{}], column: 4",
                     row.get(4),
                     row_id
                 )
             };
 
-            let bond_id = if let Some(String(bond_id)) = row.get(0) {
+            let bond_id = if let Some(String(bond_id)) = row.first() {
                 BondId::new(bond_id.as_str())
             } else {
-                bail!("Cannot extract bond ID from cell [{:?}]", row.get(0))
+                bail!("Cannot extract bond ID from cell [{:?}]", row.first())
             };
 
             let buyout_date = sale_start

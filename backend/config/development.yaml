@@ -30,7 +30,7 @@ server:
       enable: false
  
 settings:
-  bonds_location: "../scraper/output"
+  bonds_location: "assets/Dane_dotyczace_obligacji_detalicznych.xls"
 
 # Initializers Configuration
 # initializers:
