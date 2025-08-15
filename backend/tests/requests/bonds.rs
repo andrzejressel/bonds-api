@@ -1,3 +1,4 @@
+use insta::assert_csv_snapshot;
 use loco_rs::testing::prelude::*;
 use myapp::app::App;
 use pretty_assertions::assert_eq;
@@ -9,9 +10,10 @@ use serial_test::serial;
 async fn can_get_bonds() {
     request::<App, _, _>(|request, _ctx| async move {
         let res = request.get("/bonds").await;
-
         assert_eq!(res.status_code(), 200);
-        res.assert_json(&json!(["TEST123"]));
+        res.assert_json(&json!([
+            "EDO0732", "EDO0835", "EDO1014", "ROD0832", "ROD0837", "ROD1028"
+        ]));
     })
     .await;
 }
@@ -20,13 +22,9 @@ async fn can_get_bonds() {
 #[serial]
 async fn can_get_existing_bond_csv() {
     request::<App, _, _>(|request, _ctx| async move {
-        let res = request.get("/bonds/TEST123/csv").await;
-
+        let res = request.get("/bonds/ROD0837/csv").await;
         assert_eq!(res.status_code(), 200);
-
-        // Expected CSV format based on the test fixture data
-        let expected_csv = "date,value\n2023-01-15,1\n2023-01-16,1.5\n2023-01-17,2\n";
-        assert_eq!(res.text(), expected_csv);
+        assert_csv_snapshot!(res.text())
     })
     .await;
 }
