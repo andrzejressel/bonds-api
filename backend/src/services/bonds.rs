@@ -1,5 +1,4 @@
 use anyhow::{Context, Result};
-use itertools::Itertools;
 use model::{Bond, BondId};
 use std::path::Path;
 
@@ -14,13 +13,17 @@ pub(crate) struct BondsServiceImpl {
 
 impl BondsServiceImpl {
     pub(crate) fn new<P: AsRef<Path>>(directory: P) -> Result<Self> {
-        let all_bonds = bonds_reader::read_bonds(directory.as_ref())
-            .with_context(|| format!("Failed to read Bonds from directory: {}", directory.as_ref().display()))?;
+        let all_bonds = bonds_reader::read_bonds(directory.as_ref()).with_context(|| {
+            format!(
+                "Failed to read Bonds from directory: {}",
+                directory.as_ref().display()
+            )
+        })?;
         let mut map = std::collections::HashMap::new();
         for bond in all_bonds.edo.values().chain(all_bonds.rod.values()) {
             map.insert(bond.id.clone(), bond.clone());
         }
-        
+
         Ok(Self { map })
     }
 }

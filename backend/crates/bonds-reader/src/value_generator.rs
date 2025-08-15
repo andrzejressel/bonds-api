@@ -56,7 +56,11 @@ impl ValueGenerator {
     }
 
     fn two_decimal_places(value: f64) -> f64 {
-        Decimal::from_f64_retain(value).unwrap().round_dp(2).to_f64().unwrap()
+        Decimal::from_f64_retain(value)
+            .unwrap()
+            .round_dp(2)
+            .to_f64()
+            .unwrap()
     }
 }
 
@@ -78,7 +82,7 @@ mod tests {
         assert_debug_snapshot!(values[..=366]);
         assert_debug_snapshot!(values[367..]);
     }
-    
+
     #[test]
     fn test_daily_bond_value_calculation_like_edo1224() {
         let mut generator = ValueGenerator::new(100.0);
@@ -92,14 +96,13 @@ mod tests {
         generator.add_yearly_return(0.083);
         generator.add_yearly_return(0.194);
         generator.add_yearly_return(0.081);
-            
 
         let start_date = NaiveDate::from_ymd_opt(2014, 12, 1).unwrap();
         let values = generator.calculate_daily_bond_values(start_date);
 
         assert_debug_snapshot!(values);
     }
-    
+
     #[test]
     fn test_daily_bond_value_calculation_like_edo0125() {
         let mut generator = ValueGenerator::new(100.0);

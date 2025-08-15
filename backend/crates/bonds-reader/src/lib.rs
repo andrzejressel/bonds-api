@@ -1,16 +1,16 @@
 mod value_generator;
 
-use anyhow::{Context, Result, bail, Error};
+use anyhow::{Context, Error, Result, bail};
 use calamine::Data::{Float, String};
 use calamine::{DataType, Reader, Xls};
 use chrono::Datelike;
 use model::{AllBonds, Bond, BondId};
+use rust_decimal::Decimal;
+use rust_decimal::prelude::ToPrimitive;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
-use rust_decimal::Decimal;
-use rust_decimal::prelude::ToPrimitive;
 
 pub fn read_bonds<P: AsRef<Path>>(path: P) -> Result<AllBonds> {
     let mut workbook: Xls<_> =
@@ -18,16 +18,17 @@ pub fn read_bonds<P: AsRef<Path>>(path: P) -> Result<AllBonds> {
 
     let edo = extract_bond_type(&mut workbook, "EDO", 10)?;
     let rod = extract_bond_type(&mut workbook, "ROD", 12)?;
-    
-    let all_bonds = AllBonds {
-        edo,
-        rod,
-    };
-    
+
+    let all_bonds = AllBonds { edo, rod };
+
     Ok(all_bonds)
 }
 
-fn extract_bond_type(workbook: &mut Xls<BufReader<File>>, bond_type: &str, bond_length_in_years: u8) -> Result<HashMap<BondId, Bond>, Error> {
+fn extract_bond_type(
+    workbook: &mut Xls<BufReader<File>>,
+    bond_type: &str,
+    bond_length_in_years: u8,
+) -> Result<HashMap<BondId, Bond>, Error> {
     let range = workbook
         .worksheet_range(bond_type)
         .context("Failed to get worksheet [ROD]")?;
@@ -66,7 +67,9 @@ fn extract_bond_type(workbook: &mut Xls<BufReader<File>>, bond_type: &str, bond_
                 bail!("Cannot extract bond ID from cell [{:?}]", row.get(0))
             };
 
-            let buyout_date = sale_start.with_year(sale_start.year() + bond_length_in_years as i32).unwrap();
+            let buyout_date = sale_start
+                .with_year(sale_start.year() + bond_length_in_years as i32)
+                .unwrap();
 
             let mut generator = value_generator::ValueGenerator::new(100f64);
 
@@ -110,7 +113,7 @@ mod tests {
 
         assert_debug_snapshot!(rod1235bond);
     }
-    
+
     // FIXME: It's wrong by 1 grosz at the end. Due to float rounding issues in excel
     #[test]
     fn test_read_edo1224bond() {
@@ -124,7 +127,7 @@ mod tests {
 
         assert_debug_snapshot!(edo1224bond);
     }
-    
+
     #[test]
     fn test_read_edo0125bind() {
         let path = "../../assets/Dane_dotyczace_obligacji_detalicznych.xls";
