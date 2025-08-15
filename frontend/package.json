@@ -1,5 +1,5 @@
 {
-  "name": "obligacje-starbowe-website",
+  "name": "bonds-api-website",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test-coverage": "ng test --no-watch --no-progress --browsers=ChromeHeadless --code-coverage",
     "analyze-bundle": "ng build --configuration=analyze-bundle && source-map-explorer dist/**/*.js --no-border-checks"
   },
   "prettier": {
