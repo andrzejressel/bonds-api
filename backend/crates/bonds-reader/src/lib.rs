@@ -1,5 +1,4 @@
 mod value_generator;
-mod price;
 
 use anyhow::{Context, Result, bail, Error};
 use calamine::Data::{Float, String};
@@ -75,7 +74,7 @@ fn extract_bond_type(workbook: &mut Xls<BufReader<File>>, bond_type: &str, bond_
                 if let Some(cell) = row.get(i as usize)
                     && let Float(value) = cell
                 {
-                    let d = Decimal::from_f64_retain(*value).unwrap().round_sf(5).unwrap();
+                    let d = Decimal::from_f64_retain(*value).unwrap().round_dp(5);
                     generator.add_yearly_return(d.to_f64().unwrap())
                 }
             }

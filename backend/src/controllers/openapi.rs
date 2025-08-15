@@ -1,10 +1,11 @@
-use crate::services::bonds::{BondId, BondsService, BondsServiceImpl};
+use crate::services::bonds::{BondsService, BondsServiceImpl};
 use anyhow::{Context, Error};
 use async_trait::async_trait;
 use axum::http::Method;
 use axum_extra::extract::{CookieJar, Host};
 use loco_rs::app::AppContext;
 use loco_rs::controller::Routes;
+use model::BondId;
 use openapi::apis::ErrorHandler;
 use openapi::apis::default::GetBondsResponse::Status200_AJSONArrayOfBondNames;
 use openapi::apis::default::{GetBondCsvResponse, GetBondResponse, GetBondsResponse};

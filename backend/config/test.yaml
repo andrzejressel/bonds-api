@@ -31,4 +31,4 @@ server:
 #        ... other fields
 
 settings:
-  bonds_location: "tests/fixtures/bonds"
+  bonds_location: "tests/fixtures/bonds/test.xls"

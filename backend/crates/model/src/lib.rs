@@ -22,6 +22,19 @@ pub struct Bond {
     pub values: Vec<f64>,
 }
 
+impl Bond {
+    pub fn to_csv(&self) -> String {
+        let mut csv = String::from("date,value\n");
+
+        for (index, value) in self.values.iter().enumerate() {
+            let date = self.initial_date + chrono::Duration::days(index as i64);
+            csv.push_str(&format!("{},{}\n", date.format("%Y-%m-%d"), value));
+        }
+
+        csv
+    }
+}
+
 pub struct AllBonds {
     pub edo: HashMap<BondId, Bond>,
     pub rod: HashMap<BondId, Bond>,
