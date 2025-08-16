@@ -42,5 +42,5 @@ jobs:
       if: matrix.node-version == '22.x'
       uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
       with:
-        directory: ./frontend/coverage
+        files: ./frontend/coverage/obligacje-starbowe-website/cobertura-coverage.xml
         fail_ci_if_error: true

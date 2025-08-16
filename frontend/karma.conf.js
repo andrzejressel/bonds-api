@@ -26,7 +26,7 @@ module.exports = function (config) {
       dir: require('path').join(__dirname, './coverage/obligacje-starbowe-website'),
       subdir: '.',
       reporters: [
-        { type: 'lcov' },
+        { type: 'cobertura' },
       ]
     },
     reporters: ['progress', 'kjhtml'],
