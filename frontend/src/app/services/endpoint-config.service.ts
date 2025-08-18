@@ -7,7 +7,10 @@ import {environment} from '../../environments/environment';
 export class EndpointConfigService {
   private endpointUrl?: string;
 
-  getEndpoint(): string | undefined {
+  getEndpoint(): string {
+    if (!this.endpointUrl) {
+      throw new Error('EndpointConfigService: Endpoint URL not loaded yet. Call load() first.');
+    }
     return this.endpointUrl;
   }
 
