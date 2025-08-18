@@ -14,7 +14,7 @@ export const environment = {
     if (value) {
       return value;
     } else {
-      throw Error("EndpointConfigService: endpoint.json missing valid 'endpoint' value");
+      throw Error("environment.review.ts: endpoint.json missing valid 'endpoint' value");
     }
   }
 };
