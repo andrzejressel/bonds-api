@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build:prod": "ng build --output-path=dist/prod",
+    "build:review": "ng build --configuration review --output-path=dist/review",
+    "build:development": "ng build --configuration development --output-path=dist/development",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test-coverage": "ng test --no-watch --no-progress --browsers=ChromeHeadless --code-coverage",
