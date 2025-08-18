@@ -12,7 +12,7 @@ export class EndpointConfigService {
   }
 
   async load(): Promise<void> {
-    this.endpointUrl = await environment.getApiUrl()
+    this.endpointUrl = await environment.getApiUrl();
   }
 }
 
