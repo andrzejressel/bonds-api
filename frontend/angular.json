@@ -60,6 +60,15 @@
                   "with": "src/environments/environment.development.ts"
                 }
               ]
+            },
+            "review": {
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.review.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"
@@ -72,6 +81,9 @@
             },
             "development": {
               "buildTarget": "BondsApiWebsite:build:development"
+            },
+            "review": {
+              "buildTarget": "BondsApiWebsite:build:review"
             }
           },
           "defaultConfiguration": "development"
