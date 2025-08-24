@@ -6,7 +6,7 @@ CARGO_LLVM_COV_VERSION := "0.6.13"
 install-requirements:
     rustup component add rustfmt
     rustup component add llvm-tools-preview
-    cargo binstall --no-confirm cargo-llvm-cov@{{CARGO_LLVM_COV_VERSION}}
+    cargo binstall --no-confirm --force cargo-llvm-cov@{{CARGO_LLVM_COV_VERSION}}
 
 watch:
     watchexec -r -- cargo loco start
