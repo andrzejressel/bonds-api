@@ -18,7 +18,7 @@ watch-test:
     watchexec -r -- cargo test
 
 gen-api:
-    npx --yes @openapitools/openapi-generator-cli@2.21.4 generate \
+    npx --yes @openapitools/openapi-generator-cli@2.23.0 generate \
         -g rust-axum \
         -i .\openapi.yaml \
         --enable-post-process-file \
