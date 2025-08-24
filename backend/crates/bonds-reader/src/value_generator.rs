@@ -3,12 +3,6 @@ use rust_decimal::Decimal;
 use rust_decimal::prelude::ToPrimitive;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct BondValue {
-    pub date: NaiveDate,
-    pub value: f64,
-}
-
-#[derive(Debug, Clone, PartialEq)]
 pub struct ValueGenerator {
     yearly_returns: Vec<f64>,
     initial_value: f64,
