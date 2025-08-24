@@ -7,6 +7,60 @@ use validator::Validate;
 use crate::header;
 use crate::{models, types::*};
 
+#[allow(dead_code)]
+pub fn check_xss_string(v: &str) -> std::result::Result<(), validator::ValidationError> {
+    if ammonia::is_html(v) {
+        std::result::Result::Err(validator::ValidationError::new("xss detected"))
+    } else {
+        std::result::Result::Ok(())
+    }
+}
+
+#[allow(dead_code)]
+pub fn check_xss_vec_string(v: &[String]) -> std::result::Result<(), validator::ValidationError> {
+    if v.iter().any(|i| ammonia::is_html(i)) {
+        std::result::Result::Err(validator::ValidationError::new("xss detected"))
+    } else {
+        std::result::Result::Ok(())
+    }
+}
+
+#[allow(dead_code)]
+pub fn check_xss_map_string(
+    v: &std::collections::HashMap<String, String>,
+) -> std::result::Result<(), validator::ValidationError> {
+    if v.keys().any(|k| ammonia::is_html(k)) || v.values().any(|v| ammonia::is_html(v)) {
+        std::result::Result::Err(validator::ValidationError::new("xss detected"))
+    } else {
+        std::result::Result::Ok(())
+    }
+}
+
+#[allow(dead_code)]
+pub fn check_xss_map_nested<T>(
+    v: &std::collections::HashMap<String, T>,
+) -> std::result::Result<(), validator::ValidationError>
+where
+    T: validator::Validate,
+{
+    if v.keys().any(|k| ammonia::is_html(k)) || v.values().any(|v| v.validate().is_err()) {
+        std::result::Result::Err(validator::ValidationError::new("xss detected"))
+    } else {
+        std::result::Result::Ok(())
+    }
+}
+
+#[allow(dead_code)]
+pub fn check_xss_map<T>(
+    v: &std::collections::HashMap<String, T>,
+) -> std::result::Result<(), validator::ValidationError> {
+    if v.keys().any(|k| ammonia::is_html(k)) {
+        std::result::Result::Err(validator::ValidationError::new("xss detected"))
+    } else {
+        std::result::Result::Ok(())
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize, validator::Validate)]
 #[cfg_attr(feature = "conversion", derive(frunk::LabelledGeneric))]
 pub struct GetBondPathParams {
@@ -26,10 +80,12 @@ pub struct GetBondCsvPathParams {
 pub struct GetBond200Response {
     /// The bond ID
     #[serde(rename = "id")]
+    #[validate(custom(function = "check_xss_string"))]
     pub id: String,
 
     /// The bond name
     #[serde(rename = "name")]
+    #[validate(custom(function = "check_xss_string"))]
     pub name: String,
 }
 
@@ -143,8 +199,7 @@ impl std::convert::TryFrom<header::IntoHeaderValue<GetBond200Response>> for Head
         match HeaderValue::from_str(&hdr_value) {
             std::result::Result::Ok(value) => std::result::Result::Ok(value),
             std::result::Result::Err(e) => std::result::Result::Err(format!(
-                "Invalid header value for GetBond200Response - value: {} is invalid {}",
-                hdr_value, e
+                r#"Invalid header value for GetBond200Response - value: {hdr_value} is invalid {e}"#
             )),
         }
     }
@@ -162,14 +217,12 @@ impl std::convert::TryFrom<HeaderValue> for header::IntoHeaderValue<GetBond200Re
                         std::result::Result::Ok(header::IntoHeaderValue(value))
                     }
                     std::result::Result::Err(err) => std::result::Result::Err(format!(
-                        "Unable to convert header value '{}' into GetBond200Response - {}",
-                        value, err
+                        r#"Unable to convert header value '{value}' into GetBond200Response - {err}"#
                     )),
                 }
             }
             std::result::Result::Err(e) => std::result::Result::Err(format!(
-                "Unable to convert header: {:?} to string: {}",
-                hdr_value, e
+                r#"Unable to convert header: {hdr_value:?} to string: {e}"#
             )),
         }
     }
@@ -180,6 +233,7 @@ impl std::convert::TryFrom<HeaderValue> for header::IntoHeaderValue<GetBond200Re
 pub struct GetBond404Response {
     /// Error message
     #[serde(rename = "error")]
+    #[validate(custom(function = "check_xss_string"))]
     pub error: String,
 }
 
@@ -279,8 +333,7 @@ impl std::convert::TryFrom<header::IntoHeaderValue<GetBond404Response>> for Head
         match HeaderValue::from_str(&hdr_value) {
             std::result::Result::Ok(value) => std::result::Result::Ok(value),
             std::result::Result::Err(e) => std::result::Result::Err(format!(
-                "Invalid header value for GetBond404Response - value: {} is invalid {}",
-                hdr_value, e
+                r#"Invalid header value for GetBond404Response - value: {hdr_value} is invalid {e}"#
             )),
         }
     }
@@ -298,14 +351,12 @@ impl std::convert::TryFrom<HeaderValue> for header::IntoHeaderValue<GetBond404Re
                         std::result::Result::Ok(header::IntoHeaderValue(value))
                     }
                     std::result::Result::Err(err) => std::result::Result::Err(format!(
-                        "Unable to convert header value '{}' into GetBond404Response - {}",
-                        value, err
+                        r#"Unable to convert header value '{value}' into GetBond404Response - {err}"#
                     )),
                 }
             }
             std::result::Result::Err(e) => std::result::Result::Err(format!(
-                "Unable to convert header: {:?} to string: {}",
-                hdr_value, e
+                r#"Unable to convert header: {hdr_value:?} to string: {e}"#
             )),
         }
     }
