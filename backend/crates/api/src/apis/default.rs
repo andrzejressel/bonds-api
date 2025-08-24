@@ -44,6 +44,7 @@ pub trait Default<E: std::fmt::Debug + Send + Sync + 'static = ()>: super::Error
     /// GetBond - GET /bonds/{id}
     async fn get_bond(
         &self,
+
         method: &Method,
         host: &Host,
         cookies: &CookieJar,
@@ -55,6 +56,7 @@ pub trait Default<E: std::fmt::Debug + Send + Sync + 'static = ()>: super::Error
     /// GetBondCsv - GET /bonds/{id}/csv
     async fn get_bond_csv(
         &self,
+
         method: &Method,
         host: &Host,
         cookies: &CookieJar,
@@ -66,6 +68,7 @@ pub trait Default<E: std::fmt::Debug + Send + Sync + 'static = ()>: super::Error
     /// GetBonds - GET /bonds
     async fn get_bonds(
         &self,
+
         method: &Method,
         host: &Host,
         cookies: &CookieJar,
