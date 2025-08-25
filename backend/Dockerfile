@@ -6,7 +6,7 @@ COPY . .
 
 RUN cargo build --release
 
-FROM debian:bookworm-20250811-slim
+FROM debian:trixie-20250811-slim
 
 WORKDIR /usr/app
 
