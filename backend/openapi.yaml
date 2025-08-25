@@ -3,13 +3,6 @@ info:
   title: Bonds API
   version: 0.0.1
 
-servers:
-  - url: https://api.bonds-api.andrzejressel.pl
-    description: Production server
-  - # noinspection HttpUrlsUsage
-    url: http://localhost:5150
-    description: Local server for development
-
 paths:
   /bonds:
     get:
