@@ -1,3 +1,3 @@
 export const environment = {
-  getApiUrl: async () => "http://localhost:5150",
+  getApiUrl: async () => "https://bonds-api.andrzejressel.pl",
 };
