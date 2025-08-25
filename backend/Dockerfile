@@ -12,5 +12,6 @@ WORKDIR /usr/app
 
 COPY --from=builder /usr/src/config config
 COPY --from=builder /usr/src/target/release/myapp-cli myapp-cli
+COPY --from=builder /usr/src/assets assets
 
 ENTRYPOINT ["/usr/app/myapp-cli", "start"]
