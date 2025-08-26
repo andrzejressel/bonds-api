@@ -57,7 +57,7 @@ pub fn init(config: &OtelConfig) -> Result<()> {
         // e.g. by target matching.
         // .with(tracing_subscriber::filter::LevelFilter::from_level(
         //     Level::INFO,
-        // ));
+        // ))
         .with(fmt_layer)
         .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
         .with(OpenTelemetryLayer::new(tracer))
