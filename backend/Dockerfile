@@ -8,6 +8,8 @@ RUN cargo build --release
 
 FROM debian:trixie-20250811-slim
 
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/app
 
 COPY --from=builder /usr/src/config config
