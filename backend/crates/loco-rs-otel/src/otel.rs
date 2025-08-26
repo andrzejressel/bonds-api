@@ -1,4 +1,4 @@
-use crate::config::{OtelConfig, OtelTransport};
+use crate::config::{LogFormat, OtelConfig, OtelTransport};
 use loco_rs::prelude::Result;
 use opentelemetry::propagation::TextMapCompositePropagator;
 use opentelemetry::{KeyValue, global, trace::TracerProvider as _};
@@ -34,6 +34,19 @@ pub fn init(config: &OtelConfig) -> Result<()> {
     ]));
 
     let tracer = tracer_provider.tracer("tracing-otel-subscriber");
+
+    let fmt_layer: Box<dyn Layer<tracing_subscriber::registry::Registry> + Send + Sync> =
+        match config.log_format {
+            LogFormat::Json => Box::new(
+                tracing_subscriber::fmt::layer()
+                    .json()
+                    .with_filter(LevelFilter::INFO),
+            ),
+            LogFormat::Text => {
+                Box::new(tracing_subscriber::fmt::layer().with_filter(LevelFilter::INFO))
+            }
+        };
+
     tracing_subscriber::registry()
         // The global level filter prevents the exporter network stack
         // from reentering the globally installed OpenTelemetryLayer with
@@ -45,7 +58,7 @@ pub fn init(config: &OtelConfig) -> Result<()> {
         // .with(tracing_subscriber::filter::LevelFilter::from_level(
         //     Level::INFO,
         // ))
-        .with(tracing_subscriber::fmt::layer().with_filter(LevelFilter::INFO))
+        .with(fmt_layer)
         .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
         .with(OpenTelemetryLayer::new(tracer))
         .with(OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO))
