@@ -8,6 +8,7 @@ RUN cargo build --release
 
 FROM debian:trixie-20250811-slim
 
+# Required for new relic
 RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/app
