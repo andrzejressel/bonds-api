@@ -1,4 +1,4 @@
-pub mod config;
+mod config;
 mod otel;
 
 use crate::config::OtelConfig;
