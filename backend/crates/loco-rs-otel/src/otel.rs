@@ -49,32 +49,37 @@ pub fn init(config: &OtelConfig) -> Result<()> {
 
     match config.log_format {
         LogFormat::Json => {
-            registry
-                .with(
-                    tracing_subscriber::fmt::layer()
-                        .json()
-                        .with_filter(LevelFilter::INFO),
-                )
-                .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
-                .with(OpenTelemetryLayer::new(tracer))
-                .with(
-                    OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO),
-                )
-                .init();
+            let fmt_layer = tracing_subscriber::fmt::layer()
+                .json()
+                .with_filter(LevelFilter::INFO);
+            setup_registry(registry, fmt_layer, meter_provider, tracer, &logs_provider);
         }
         LogFormat::Text => {
-            registry
-                .with(tracing_subscriber::fmt::layer().with_filter(LevelFilter::INFO))
-                .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
-                .with(OpenTelemetryLayer::new(tracer))
-                .with(
-                    OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO),
-                )
-                .init();
+            let fmt_layer = tracing_subscriber::fmt::layer().with_filter(LevelFilter::INFO);
+            setup_registry(registry, fmt_layer, meter_provider, tracer, &logs_provider);
         }
     }
 
     Ok(())
+}
+
+fn setup_registry<F>(
+    registry: tracing_subscriber::registry::Registry,
+    fmt_layer: F,
+    meter_provider: SdkMeterProvider,
+    tracer: opentelemetry_sdk::trace::Tracer,
+    logs_provider: &SdkLoggerProvider,
+) where 
+    F: tracing_subscriber::Layer<tracing_subscriber::registry::Registry> + Send + Sync,
+{
+    registry
+        .with(fmt_layer)
+        .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
+        .with(OpenTelemetryLayer::new(tracer))
+        .with(
+            OpenTelemetryTracingBridge::new(logs_provider).with_filter(LevelFilter::INFO),
+        )
+        .init();
 }
 
 // Create a Resource that captures information about the entity for which telemetry is recorded.
