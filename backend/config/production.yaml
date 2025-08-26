@@ -21,7 +21,7 @@ server:
   # Binding for the server (which interface to bind to)
   binding: 0.0.0.0
   # The UI hostname or IP address that mailers will point to.
-  host: http://localhost
+  host: https://bonds.andrzejressel.pl
   # Out of the box middleware configuration. to disable middleware you can changed the `enable` field to `false` of comment the middleware block
   middlewares:
     cors:
