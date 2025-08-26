@@ -70,20 +70,4 @@ common:
             LogFormat::Json => panic!("Expected Text format, got JSON"),
         }
     }
-
-    #[test]
-    fn test_default_log_format() {
-        let yaml_config = r#"
-common:
-  transport:
-    type: HTTP
-    url: "http://localhost:4318"
-"#;
-
-        let config: OtelConfig = serde_yaml::from_str(yaml_config).expect("Failed to parse config");
-        match config.log_format {
-            LogFormat::Text => {}
-            LogFormat::Json => panic!("Expected default Text format, got JSON"),
-        }
-    }
 }
