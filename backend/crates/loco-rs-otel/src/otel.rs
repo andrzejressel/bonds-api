@@ -35,51 +35,36 @@ pub fn init(config: &OtelConfig) -> Result<()> {
 
     let tracer = tracer_provider.tracer("tracing-otel-subscriber");
 
-    let registry = tracing_subscriber::registry();
-    // The global level filter prevents the exporter network stack
-    // from reentering the globally installed OpenTelemetryLayer with
-    // its own spans while exporting, as the libraries should not use
-    // tracing levels below DEBUG. If the OpenTelemetry layer needs to
-    // trace spans and events with higher verbosity levels, consider using
-    // per-layer filtering to target the telemetry layer specifically,
-    // e.g. by target matching.
-    // .with(tracing_subscriber::filter::LevelFilter::from_level(
-    //     Level::INFO,
-    // ));
+    let fmt_layer: Box<dyn Layer<tracing_subscriber::registry::Registry> + Send + Sync> =
+        match config.log_format {
+            LogFormat::Json => Box::new(
+                tracing_subscriber::fmt::layer()
+                    .json()
+                    .with_filter(LevelFilter::INFO),
+            ),
+            LogFormat::Text => {
+                Box::new(tracing_subscriber::fmt::layer().with_filter(LevelFilter::INFO))
+            }
+        };
 
-    match config.log_format {
-        LogFormat::Json => {
-            let fmt_layer = tracing_subscriber::fmt::layer()
-                .json()
-                .with_filter(LevelFilter::INFO);
-            setup_registry(registry, fmt_layer, meter_provider, tracer, &logs_provider);
-        }
-        LogFormat::Text => {
-            let fmt_layer = tracing_subscriber::fmt::layer().with_filter(LevelFilter::INFO);
-            setup_registry(registry, fmt_layer, meter_provider, tracer, &logs_provider);
-        }
-    }
-
-    Ok(())
-}
-
-fn setup_registry<F>(
-    registry: tracing_subscriber::registry::Registry,
-    fmt_layer: F,
-    meter_provider: SdkMeterProvider,
-    tracer: opentelemetry_sdk::trace::Tracer,
-    logs_provider: &SdkLoggerProvider,
-) where 
-    F: tracing_subscriber::Layer<tracing_subscriber::registry::Registry> + Send + Sync,
-{
-    registry
+    tracing_subscriber::registry()
+        // The global level filter prevents the exporter network stack
+        // from reentering the globally installed OpenTelemetryLayer with
+        // its own spans while exporting, as the libraries should not use
+        // tracing levels below DEBUG. If the OpenTelemetry layer needs to
+        // trace spans and events with higher verbosity levels, consider using
+        // per-layer filtering to target the telemetry layer specifically,
+        // e.g. by target matching.
+        // .with(tracing_subscriber::filter::LevelFilter::from_level(
+        //     Level::INFO,
+        // ));
         .with(fmt_layer)
         .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
         .with(OpenTelemetryLayer::new(tracer))
-        .with(
-            OpenTelemetryTracingBridge::new(logs_provider).with_filter(LevelFilter::INFO),
-        )
+        .with(OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO))
         .init();
+
+    Ok(())
 }
 
 // Create a Resource that captures information about the entity for which telemetry is recorded.

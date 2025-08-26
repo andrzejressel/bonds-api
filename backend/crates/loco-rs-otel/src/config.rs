@@ -4,7 +4,6 @@ use std::collections::HashMap;
 #[derive(Deserialize)]
 pub(crate) struct OtelConfig {
     pub(crate) common: OtelCommon,
-    #[serde(default)]
     pub(crate) log_format: LogFormat,
 }
 
@@ -13,10 +12,9 @@ pub(crate) struct OtelCommon {
     pub(crate) transport: OtelTransport,
 }
 
-#[derive(Deserialize, Default)]
+#[derive(Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum LogFormat {
-    #[default]
     Text,
     Json,
 }
