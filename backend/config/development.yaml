@@ -42,6 +42,7 @@ settings:
 initializers:
   otel:
     type: Enabled
+    log_format: text # Options: text (default), json
     common:
       transport:
         type: HTTP

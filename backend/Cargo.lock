@@ -2313,6 +2313,7 @@ dependencies = [
  "opentelemetry_sdk",
  "serde",
  "serde_json",
+ "serde_yaml",
  "tracing",
  "tracing-core",
  "tracing-opentelemetry",

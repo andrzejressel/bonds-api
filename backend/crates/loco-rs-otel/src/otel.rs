@@ -1,4 +1,4 @@
-use crate::config::{OtelConfig, OtelTransport};
+use crate::config::{LogFormat, OtelConfig, OtelTransport};
 use loco_rs::prelude::Result;
 use opentelemetry::propagation::TextMapCompositePropagator;
 use opentelemetry::{KeyValue, global, trace::TracerProvider as _};
@@ -34,7 +34,8 @@ pub fn init(config: &OtelConfig) -> Result<()> {
     ]));
 
     let tracer = tracer_provider.tracer("tracing-otel-subscriber");
-    tracing_subscriber::registry()
+    
+    let registry = tracing_subscriber::registry();
         // The global level filter prevents the exporter network stack
         // from reentering the globally installed OpenTelemetryLayer with
         // its own spans while exporting, as the libraries should not use
@@ -44,12 +45,26 @@ pub fn init(config: &OtelConfig) -> Result<()> {
         // e.g. by target matching.
         // .with(tracing_subscriber::filter::LevelFilter::from_level(
         //     Level::INFO,
-        // ))
-        .with(tracing_subscriber::fmt::layer().with_filter(LevelFilter::INFO))
-        .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
-        .with(OpenTelemetryLayer::new(tracer))
-        .with(OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO))
-        .init();
+        // ));
+        
+    match config.log_format {
+        LogFormat::Json => {
+            registry
+                .with(tracing_subscriber::fmt::layer().json().with_filter(LevelFilter::INFO))
+                .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
+                .with(OpenTelemetryLayer::new(tracer))
+                .with(OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO))
+                .init();
+        },
+        LogFormat::Text => {
+            registry
+                .with(tracing_subscriber::fmt::layer().with_filter(LevelFilter::INFO))
+                .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
+                .with(OpenTelemetryLayer::new(tracer))
+                .with(OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO))
+                .init();
+        }
+    }
 
     Ok(())
 }
