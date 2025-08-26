@@ -3,11 +3,6 @@ info:
   title: Bonds API
   version: 0.0.1
 
-servers:
-  - # noinspection HttpUrlsUsage
-    url: http://localhost:5150
-    description: Local server for development
-
 paths:
   /bonds:
     get:
