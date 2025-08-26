@@ -48,10 +48,10 @@ common:
     type: HTTP
     url: "http://localhost:4318"
 "#;
-        
+
         let config: OtelConfig = serde_yaml::from_str(yaml_config).expect("Failed to parse config");
         match config.log_format {
-            LogFormat::Json => {},
+            LogFormat::Json => {}
             LogFormat::Text => panic!("Expected JSON format, got Text"),
         }
     }
@@ -65,10 +65,10 @@ common:
     type: HTTP
     url: "http://localhost:4318"
 "#;
-        
+
         let config: OtelConfig = serde_yaml::from_str(yaml_config).expect("Failed to parse config");
         match config.log_format {
-            LogFormat::Text => {},
+            LogFormat::Text => {}
             LogFormat::Json => panic!("Expected Text format, got JSON"),
         }
     }
@@ -81,10 +81,10 @@ common:
     type: HTTP
     url: "http://localhost:4318"
 "#;
-        
+
         let config: OtelConfig = serde_yaml::from_str(yaml_config).expect("Failed to parse config");
         match config.log_format {
-            LogFormat::Text => {},
+            LogFormat::Text => {}
             LogFormat::Json => panic!("Expected default Text format, got JSON"),
         }
     }

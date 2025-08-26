@@ -34,34 +34,42 @@ pub fn init(config: &OtelConfig) -> Result<()> {
     ]));
 
     let tracer = tracer_provider.tracer("tracing-otel-subscriber");
-    
+
     let registry = tracing_subscriber::registry();
-        // The global level filter prevents the exporter network stack
-        // from reentering the globally installed OpenTelemetryLayer with
-        // its own spans while exporting, as the libraries should not use
-        // tracing levels below DEBUG. If the OpenTelemetry layer needs to
-        // trace spans and events with higher verbosity levels, consider using
-        // per-layer filtering to target the telemetry layer specifically,
-        // e.g. by target matching.
-        // .with(tracing_subscriber::filter::LevelFilter::from_level(
-        //     Level::INFO,
-        // ));
-        
+    // The global level filter prevents the exporter network stack
+    // from reentering the globally installed OpenTelemetryLayer with
+    // its own spans while exporting, as the libraries should not use
+    // tracing levels below DEBUG. If the OpenTelemetry layer needs to
+    // trace spans and events with higher verbosity levels, consider using
+    // per-layer filtering to target the telemetry layer specifically,
+    // e.g. by target matching.
+    // .with(tracing_subscriber::filter::LevelFilter::from_level(
+    //     Level::INFO,
+    // ));
+
     match config.log_format {
         LogFormat::Json => {
             registry
-                .with(tracing_subscriber::fmt::layer().json().with_filter(LevelFilter::INFO))
+                .with(
+                    tracing_subscriber::fmt::layer()
+                        .json()
+                        .with_filter(LevelFilter::INFO),
+                )
                 .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
                 .with(OpenTelemetryLayer::new(tracer))
-                .with(OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO))
+                .with(
+                    OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO),
+                )
                 .init();
-        },
+        }
         LogFormat::Text => {
             registry
                 .with(tracing_subscriber::fmt::layer().with_filter(LevelFilter::INFO))
                 .with(MetricsLayer::new(meter_provider).with_filter(LevelFilter::INFO))
                 .with(OpenTelemetryLayer::new(tracer))
-                .with(OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO))
+                .with(
+                    OpenTelemetryTracingBridge::new(&logs_provider).with_filter(LevelFilter::INFO),
+                )
                 .init();
         }
     }
