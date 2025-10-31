@@ -43,7 +43,7 @@ axum-tracing-opentelemetry = { version = "0.32.0" }
 opentelemetry-appender-tracing = { version = "0.30.1", features = ["experimental_use_tracing_span_context", "experimental_metadata_attributes"] }
 axum-otel-metrics = "0.12.0"
 include_dir = "0.7.4"
-axum-extra = "0.10.1"
+axum-extra = "0.12.0"
 loco-openapi = { version = "*", features = [
     "full",
 ], git = "https://github.com/loco-rs/loco-openapi-Initializer", branch = "main" }
