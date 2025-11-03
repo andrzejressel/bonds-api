@@ -295,7 +295,6 @@ dependencies = [
  "axum-core",
  "bytes",
  "cookie",
- "form_urlencoded",
  "futures-util",
  "http",
  "http-body",
@@ -303,6 +302,30 @@ dependencies = [
  "mime",
  "pin-project-lite",
  "rustversion",
+ "serde_core",
+ "tower-layer",
+ "tower-service",
+ "tracing",
+]
+
+[[package]]
+name = "axum-extra"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5136e6c5e7e7978fe23e9876fb924af2c0f84c72127ac6ac17e7c46f457d362c"
+dependencies = [
+ "axum",
+ "axum-core",
+ "bytes",
+ "cookie",
+ "form_urlencoded",
+ "futures-core",
+ "futures-util",
+ "http",
+ "http-body",
+ "http-body-util",
+ "mime",
+ "pin-project-lite",
  "serde_core",
  "serde_html_form",
  "serde_path_to_error",
@@ -371,9 +394,9 @@ dependencies = [
 
 [[package]]
 name = "axum-tracing-opentelemetry"
-version = "0.32.1"
+version = "0.32.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "328c8ddd5ca871b2a5acb00be0b4f103aa62f5d6b6db4071ccf3b12b0629e7c1"
+checksum = "e8ca2639ea8e778162fa734ddd5d77cb2fdf29ec39adb80192693834b6639ea6"
 dependencies = [
  "axum",
  "futures-core",
@@ -2252,7 +2275,7 @@ dependencies = [
  "argon2",
  "async-trait",
  "axum",
- "axum-extra",
+ "axum-extra 0.10.3",
  "axum-test",
  "backtrace_printer",
  "byte-unit",
@@ -2498,7 +2521,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "axum",
- "axum-extra",
+ "axum-extra 0.12.1",
  "bonds-reader",
  "chrono",
  "include_dir",
@@ -2623,7 +2646,7 @@ dependencies = [
  "ammonia",
  "async-trait",
  "axum",
- "axum-extra",
+ "axum-extra 0.12.1",
  "base64",
  "bytes",
  "chrono",
@@ -3188,7 +3211,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a56d757972c98b346a9b766e3f02746cde6dd1cd1d1d563472929fdd74bec4d"
 dependencies = [
  "anyhow",
- "itertools 0.12.1",
+ "itertools 0.14.0",
  "proc-macro2",
  "quote",
  "syn 2.0.104",
@@ -3201,7 +3224,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9120690fafc389a67ba3803df527d0ec9cbbc9cc45e4cc20b332996dfb672425"
 dependencies = [
  "anyhow",
- "itertools 0.12.1",
+ "itertools 0.14.0",
  "proc-macro2",
  "quote",
  "syn 2.0.104",
