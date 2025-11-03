@@ -20,7 +20,7 @@ axum-tracing-opentelemetry.workspace = true
 opentelemetry-appender-tracing.workspace = true
 axum-otel-metrics.workspace = true
 tracing.workspace = true
-init-tracing-opentelemetry = { version = "0.32.0",  features = [
+init-tracing-opentelemetry = { version = "0.33.0",  features = [
     "otlp",
     "tracing_subscriber_ext",
     "metrics"
