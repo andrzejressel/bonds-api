@@ -31,16 +31,16 @@ axum = { version = "0.8.1" }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1" }
 tracing = { version = "0.1.40" }
-opentelemetry = "0.30.0"
-opentelemetry_sdk = "0.30.0"
+opentelemetry = "0.31.0"
+opentelemetry_sdk = "0.31.0"
 tracing-opentelemetry = "0.31.0"
 tracing-core = "0.1.34"
-opentelemetry-semantic-conventions = "0.30.0"
-opentelemetry-stdout = "0.30.0"
-opentelemetry-otlp = "0.30.0"
+opentelemetry-semantic-conventions = "0.31.0"
+opentelemetry-stdout = "0.31.0"
+opentelemetry-otlp = "0.31.0"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
 axum-tracing-opentelemetry = { version = "0.32.0" }
-opentelemetry-appender-tracing = { version = "0.30.1", features = ["experimental_use_tracing_span_context", "experimental_metadata_attributes"] }
+opentelemetry-appender-tracing = { version = "0.31.0", features = ["experimental_use_tracing_span_context", "experimental_metadata_attributes"] }
 axum-otel-metrics = "0.12.0"
 include_dir = "0.7.4"
 axum-extra = "0.12.0"
